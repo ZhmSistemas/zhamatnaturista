@@ -1,0 +1,67 @@
+import { NextRequest } from 'next/server'
+import dbConnect from '@/lib/dbConnect'
+import ProductModel from '@/lib/models/ProductModel'
+
+export const GET = async (request: NextRequest) => {
+  try {
+    await dbConnect()
+    const { searchParams } = new URL(request.url)
+    const discounted = searchParams.get('discounted')
+
+    const query: Record<string, unknown> = {}
+    if (discounted === 'true') {
+      query.discount = { $gt: 0 }
+    }
+
+    const products = await ProductModel.find(query).sort({ createdAt: -1 })
+    return Response.json(products, { status: 200 })
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
+    return Response.json(
+      { message: errorMessage },
+      { status: 500 }
+    )
+  }
+}
+
+export const POST = async (request: NextRequest) => {
+  try {
+    const body = await request.json()
+    const { image_url, name, price, description, stock, discount, codigo, categoria, marca, precioCompra, componentes, formaConsumo } = body
+
+    if (!name || !price) {
+      return Response.json(
+        { message: 'Nombre y precio son obligatorios' },
+        { status: 422 }
+      )
+    }
+
+    await dbConnect()
+    const newProduct = new ProductModel({      
+      name,
+      price: Number(price),
+      description,
+      stock: Number(stock) || 0,
+      ...(discount != null && !isNaN(Number(discount)) ? { discount: Number(discount) } : {}),
+      image: image_url,
+      codigo,
+      categoria,
+      marca,
+      ...(precioCompra != null && !isNaN(Number(precioCompra)) ? { precioCompra: Number(precioCompra) } : {}),
+      componentes,
+      formaConsumo,
+    })
+
+    await newProduct.save()
+    return Response.json(
+      { message: 'Producto creado exitosamente', product: newProduct },
+      { status: 201 }
+    )
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
+    return Response.json(
+      { message: errorMessage },
+      { status: 500 }
+    )
+  }
+}
