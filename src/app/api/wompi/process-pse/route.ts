@@ -9,12 +9,16 @@ const PSE_PAYMENT_TYPE_MAP: Record<PSEPaymentMethod, string> = {
   efecty: 'BANK_TRANSFER', // Efecty se procesa como transferencia bancaria en Wompi
 }
 
+function isValidPSEMethod(method: unknown): method is PSEPaymentMethod {
+  return typeof method === 'string' && ['nequi', 'daviplata', 'efecty'].includes(method)
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { paymentMethod, amountInCents, customerEmail, customerFullName, redirectUrl } = body
 
-    if (!paymentMethod || !['nequi', 'daviplata', 'efecty'].includes(paymentMethod)) {
+    if (!isValidPSEMethod(paymentMethod)) {
       return Response.json({ message: 'Método de pago inválido' }, { status: 400 })
     }
 
