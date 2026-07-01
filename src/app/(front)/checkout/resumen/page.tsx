@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { ArrowLeft, Package, MapPin, Phone, User, Home, Building2, CreditCard, Banknote, Smartphone, Receipt, Loader, AlertTriangle, PencilLine, CheckCircle, Wallet } from 'lucide-react'
+import { ArrowLeft, Package, MapPin, Phone, User, Home, Building2, CreditCard, Banknote, Loader, AlertTriangle, PencilLine, CheckCircle } from 'lucide-react'
 import { showToast } from 'nextjs-toast-notify'
 import { useCart } from '@/context/CartContext'
 import { formatPrice } from '@/lib/formatPrice'
@@ -72,189 +72,6 @@ export default function ResumenPage() {
       setSaving(false)
     }
   }, [data, items, subtotal, discount, total, clearCart, router])
-
-  const handleNequi = useCallback(async () => {
-    if (!data) return
-    setSaving(true)
-    try {
-      // Iniciar transacción PSE con Wompi
-      const pseRes = await fetch('/api/wompi/process-pse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentMethod: 'nequi',
-          amountInCents: Math.round(total * 100),
-          customerEmail: session?.user?.email || data.nombreCompleto,
-          customerFullName: data.nombreCompleto,
-          redirectUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/checkout/procesando-pago`,
-        }),
-      })
-
-      const pseData = await pseRes.json()
-
-      if (!pseRes.ok) {
-        throw new Error(pseData.message || 'Error al procesar pago con Nequi')
-      }
-
-      // Guardar pedido con estado pending
-      await fetch('/api/shipping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombreCompleto: data.nombreCompleto,
-          direccion: data.direccion,
-          ciudad: data.ciudad,
-          whatsapp: data.whatsapp,
-          barrio: data.barrio,
-          items,
-          subtotal,
-          discount,
-          total,
-          paymentMethod: 'nequi',
-          wompiTransactionId: pseData.transaction?.id,
-          wompiReference: pseData.transaction?.reference,
-          wompiStatus: 'PENDING',
-          status: 'pending',
-        }),
-      })
-
-      // Redirigir a Wompi
-      if (pseData.processingUrl) {
-        localStorage.setItem('wompi_pending_nequi', JSON.stringify(pseData.transaction))
-        window.location.href = pseData.processingUrl
-      } else {
-        throw new Error('No se pudo obtener URL de procesamiento')
-      }
-    } catch (error) {
-      showToast.error(error instanceof Error ? error.message : 'Error al procesar pago', {
-        duration: 4000,
-        position: 'top-center',
-      })
-      setSaving(false)
-    }
-  }, [data, items, subtotal, discount, total, session, router])
-
-  const handleEfecty = useCallback(async () => {
-    if (!data) return
-    setSaving(true)
-    try {
-      // Iniciar transacción PSE con Wompi para Efecty
-      const pseRes = await fetch('/api/wompi/process-pse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentMethod: 'efecty',
-          amountInCents: Math.round(total * 100),
-          customerEmail: session?.user?.email || data.nombreCompleto,
-          customerFullName: data.nombreCompleto,
-          redirectUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/checkout/procesando-pago`,
-        }),
-      })
-
-      const pseData = await pseRes.json()
-
-      if (!pseRes.ok) {
-        throw new Error(pseData.message || 'Error al procesar pago con Efecty')
-      }
-
-      // Guardar pedido con estado pending
-      await fetch('/api/shipping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombreCompleto: data.nombreCompleto,
-          direccion: data.direccion,
-          ciudad: data.ciudad,
-          whatsapp: data.whatsapp,
-          barrio: data.barrio,
-          items,
-          subtotal,
-          discount,
-          total,
-          paymentMethod: 'efecty',
-          wompiTransactionId: pseData.transaction?.id,
-          wompiReference: pseData.transaction?.reference,
-          wompiStatus: 'PENDING',
-          status: 'pending',
-        }),
-      })
-
-      // Redirigir a Wompi
-      if (pseData.processingUrl) {
-        localStorage.setItem('wompi_pending_efecty', JSON.stringify(pseData.transaction))
-        window.location.href = pseData.processingUrl
-      } else {
-        throw new Error('No se pudo obtener URL de procesamiento')
-      }
-    } catch (error) {
-      showToast.error(error instanceof Error ? error.message : 'Error al procesar pago', {
-        duration: 4000,
-        position: 'top-center',
-      })
-      setSaving(false)
-    }
-  }, [data, items, subtotal, discount, total, session, router])
-
-  const handleDaviplata = useCallback(async () => {
-    if (!data) return
-    setSaving(true)
-    try {
-      // Iniciar transacción PSE con Wompi para Daviplata
-      const pseRes = await fetch('/api/wompi/process-pse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paymentMethod: 'daviplata',
-          amountInCents: Math.round(total * 100),
-          customerEmail: session?.user?.email || data.nombreCompleto,
-          customerFullName: data.nombreCompleto,
-          redirectUrl: `${typeof window !== 'undefined' ? window.location.origin : ''}/checkout/procesando-pago`,
-        }),
-      })
-
-      const pseData = await pseRes.json()
-
-      if (!pseRes.ok) {
-        throw new Error(pseData.message || 'Error al procesar pago con Daviplata')
-      }
-
-      // Guardar pedido con estado pending
-      await fetch('/api/shipping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombreCompleto: data.nombreCompleto,
-          direccion: data.direccion,
-          ciudad: data.ciudad,
-          whatsapp: data.whatsapp,
-          barrio: data.barrio,
-          items,
-          subtotal,
-          discount,
-          total,
-          paymentMethod: 'daviplata',
-          wompiTransactionId: pseData.transaction?.id,
-          wompiReference: pseData.transaction?.reference,
-          wompiStatus: 'PENDING',
-          status: 'pending',
-        }),
-      })
-
-      // Redirigir a Wompi
-      if (pseData.processingUrl) {
-        localStorage.setItem('wompi_pending_daviplata', JSON.stringify(pseData.transaction))
-        window.location.href = pseData.processingUrl
-      } else {
-        throw new Error('No se pudo obtener URL de procesamiento')
-      }
-    } catch (error) {
-      showToast.error(error instanceof Error ? error.message : 'Error al procesar pago', {
-        duration: 4000,
-        position: 'top-center',
-      })
-      setSaving(false)
-    }
-  }, [data, items, subtotal, discount, total, session, router])
 
   const handleTarjetaRejected = useCallback(async (transaction: { id: string; status: string; reference: string }) => {
     console.log('🔍 [ResumenPage] handleTarjetaRejected called with:', transaction)
@@ -535,12 +352,6 @@ export default function ResumenPage() {
                 <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                   {data.paymentMethod === 'efectivo' ? (
                     <Banknote className="w-5 h-5 text-green-500" />
-                  ) : data.paymentMethod === 'nequi' ? (
-                    <Smartphone className="w-5 h-5 text-green-500" />
-                  ) : data.paymentMethod === 'daviplata' ? (
-                    <Wallet className="w-5 h-5 text-green-500" />
-                  ) : data.paymentMethod === 'efecty' ? (
-                    <Receipt className="w-5 h-5 text-green-500" />
                   ) : (
                     <CreditCard className="w-5 h-5 text-green-500" />
                   )}
@@ -555,7 +366,7 @@ export default function ResumenPage() {
                 </button>
               </div>
               <p className="text-gray-900 font-medium capitalize">
-                {data.paymentMethod === 'efectivo' ? 'Efectivo' : data.paymentMethod === 'nequi' ? 'Nequi' : data.paymentMethod === 'daviplata' ? 'Daviplata' : data.paymentMethod === 'efecty' ? 'Efecty' : 'Tarjeta'}
+                {data.paymentMethod === 'efectivo' ? 'Efectivo' : 'Tarjeta de crédito/débito'}
               </p>
             </div>
 
@@ -654,54 +465,6 @@ export default function ResumenPage() {
                   'Confirmar pedido'
                 )}
               </button>
-            ) : data?.paymentMethod === 'nequi' ? (
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                disabled={saving}
-                className="w-full py-3 rounded-xl font-bold text-white bg-linear-to-r from-green-500 to-emerald-500 hover:shadow-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    Confirmando...
-                  </>
-                ) : (
-                  'Procesar pago Nequi'
-                )}
-              </button>
-            ) : data?.paymentMethod === 'daviplata' ? (
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                disabled={saving}
-                className="w-full py-3 rounded-xl font-bold text-white bg-linear-to-r from-green-500 to-emerald-500 hover:shadow-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    Confirmando...
-                  </>
-                ) : (
-                  'Procesar pago Daviplata'
-                )}
-              </button>
-            ) : data?.paymentMethod === 'efecty' ? (
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                disabled={saving}
-                className="w-full py-3 rounded-xl font-bold text-white bg-linear-to-r from-green-500 to-emerald-500 hover:shadow-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {saving ? (
-                  <>
-                    <Loader className="w-5 h-5 animate-spin" />
-                    Confirmando...
-                  </>
-                ) : (
-                  'Procesar pago Efecty'
-                )}
-              </button>
             ) : (
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -725,21 +488,15 @@ export default function ResumenPage() {
         </div>
       </div>
 
-      {confirmOpen && (data?.paymentMethod === 'efectivo' || data?.paymentMethod === 'nequi' || data?.paymentMethod === 'daviplata' || data?.paymentMethod === 'efecty') && (
+      {confirmOpen && data?.paymentMethod === 'efectivo' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 max-w-sm w-full mx-4 animate-popUp">
             <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-7 h-7 text-amber-500" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">¿Enviar pedido?</h3>
+            <h3 className="text-lg font-bold text-gray-900 text-center mb-2">¿Confirmar pedido?</h3>
             <p className="text-gray-500 text-sm text-center mb-6">
-              {data?.paymentMethod === 'efectivo'
-                ? 'Pagarás en efectivo cuando recibas tu pedido.'
-                : data?.paymentMethod === 'nequi'
-                ? 'Serás redirigido a la plataforma de Nequi para completar el pago.'
-                : data?.paymentMethod === 'daviplata'
-                ? 'Serás redirigido a la plataforma de Daviplata para completar el pago.'
-                : 'Serás redirigido a la plataforma de Efecty para completar el pago.'}
+              Pagarás en efectivo cuando recibas tu pedido.
             </p>
             <div className="flex gap-3">
               <button
@@ -751,17 +508,17 @@ export default function ResumenPage() {
               </button>
               <button
                 type="button"
-                onClick={data?.paymentMethod === 'nequi' ? handleNequi : data?.paymentMethod === 'daviplata' ? handleDaviplata : data?.paymentMethod === 'efecty' ? handleEfecty : handleEfectivo}
+                onClick={handleEfectivo}
                 disabled={saving}
                 className="flex-1 py-2.5 rounded-xl font-bold text-white bg-linear-to-r from-green-500 to-emerald-500 hover:shadow-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {saving ? (
                   <>
                     <Loader className="w-4 h-4 animate-spin" />
-                    Procesando
+                    Guardando
                   </>
                 ) : (
-                  'Sí, continuar'
+                  'Sí, confirmar'
                 )}
               </button>
             </div>

@@ -53,6 +53,7 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
   const [expiry, setExpiry] = useState('')
   const [cvc, setCvc] = useState('')
   const [cardHolder, setCardHolder] = useState('')
+  const [installments, setInstallments] = useState(1)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [processing, setProcessing] = useState(false)
   const [cardBrand, setCardBrand] = useState<string | null>(null)
@@ -143,7 +144,7 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
           amountInCents,
           customerEmail: customerEmail || '',
           customerFullName,
-          installments: 1,
+          installments,
         }),
       })
 
@@ -265,6 +266,22 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
           disabled={processing}
         />
         {errors.cardHolder && <p className="text-red-500 text-xs mt-1">{errors.cardHolder}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Cuotas</label>
+        <select
+          value={installments}
+          onChange={(e) => setInstallments(Number(e.target.value))}
+          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-900 outline-none transition-colors focus:border-green-500 disabled:opacity-50"
+          disabled={processing}
+        >
+          {[1, 2, 3, 4, 6, 12].map((num) => (
+            <option key={num} value={num}>
+              {num} cuota{num === 1 ? '' : 's'}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex items-center gap-2 text-xs text-gray-400">
