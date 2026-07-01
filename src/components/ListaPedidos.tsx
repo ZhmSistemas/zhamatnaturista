@@ -16,6 +16,7 @@ import {
   CreditCard,
   Smartphone,
   Receipt,
+  Wallet,
 } from "lucide-react";
 import Image from "next/image";
 import { formatPrice } from "@/lib/formatPrice";
@@ -78,7 +79,7 @@ export default function ListaPedidos() {
         if (!ignore) {
           const filtered = data.filter(
             (p: Pedido) =>
-              p.paymentMethod === 'efectivo' || p.paymentMethod === 'nequi' || p.paymentMethod === 'efecty' || p.wompiStatus === 'APPROVED'
+              p.paymentMethod === 'efectivo' || p.paymentMethod === 'nequi' || p.paymentMethod === 'daviplata' || p.paymentMethod === 'efecty' || p.wompiStatus === 'APPROVED'
           )
           setPedidos(filtered);
         }
@@ -271,6 +272,8 @@ export default function ListaPedidos() {
                               <Banknote className="w-4 h-4 text-green-600" />
                             ) : pedido.paymentMethod === "nequi" ? (
                               <Smartphone className="w-4 h-4 text-green-600" />
+                            ) : pedido.paymentMethod === "daviplata" ? (
+                              <Wallet className="w-4 h-4 text-green-600" />
                             ) : pedido.paymentMethod === "efecty" ? (
                               <Receipt className="w-4 h-4 text-green-600" />
                             ) : (
@@ -282,6 +285,8 @@ export default function ListaPedidos() {
                                 ? "Efectivo"
                                 : pedido.paymentMethod === "nequi"
                                 ? "Nequi"
+                                : pedido.paymentMethod === "daviplata"
+                                ? "Daviplata"
                                 : pedido.paymentMethod === "efecty"
                                 ? "Efecty"
                                 : "Tarjeta"}

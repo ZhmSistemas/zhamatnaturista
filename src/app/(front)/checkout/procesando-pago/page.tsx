@@ -27,6 +27,7 @@ function ProcesandoPagoContent() {
             const stored = localStorage.getItem('zhamat_shipping_data')
             if (stored && items.length > 0) {
               const data = JSON.parse(stored)
+              const paymentMethod = data.paymentMethod || 'tarjeta'
               try {
                 await fetch('/api/shipping', {
                   method: 'POST',
@@ -41,7 +42,7 @@ function ProcesandoPagoContent() {
                     subtotal,
                     discount,
                     total,
-                    paymentMethod: 'tarjeta',
+                    paymentMethod,
                     wompiTransactionId: transactionId,
                     wompiReference: ref || '',
                     wompiStatus: 'DECLINED',
@@ -72,6 +73,7 @@ function ProcesandoPagoContent() {
       }
 
       const data = JSON.parse(stored)
+      const paymentMethod = data.paymentMethod || 'tarjeta'
 
       try {
         const res = await fetch('/api/shipping', {
@@ -87,7 +89,7 @@ function ProcesandoPagoContent() {
             subtotal,
             discount,
             total,
-            paymentMethod: 'tarjeta',
+            paymentMethod,
             wompiTransactionId: transactionId,
             wompiReference: ref || '',
             wompiStatus: 'APPROVED',

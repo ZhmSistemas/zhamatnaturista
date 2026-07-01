@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { ArrowLeft, Package, CreditCard, Banknote, Smartphone, Receipt, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Package, CreditCard, Banknote, Smartphone, Receipt, CheckCircle, Wallet } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { formatPrice } from '@/lib/formatPrice'
 
@@ -158,9 +158,32 @@ export default function PagoPage() {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-gray-900">Nequi</p>
-                    <p className="text-sm text-gray-500">Paga desde la app de Nequi</p>
+                    <p className="text-sm text-gray-500">Transferencia por Nequi (online)</p>
                   </div>
                   {selectedMethod === 'nequi' && (
+                    <CheckCircle className="w-6 h-6 text-green-500 shrink-0" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedMethod('daviplata')}
+                  className={`w-full flex items-center gap-5 p-5 rounded-xl border-2 transition-all duration-200 text-left ${
+                    selectedMethod === 'daviplata'
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    selectedMethod === 'daviplata' ? 'bg-green-500' : 'bg-gray-100'
+                  }`}>
+                    <Wallet className={`w-6 h-6 ${selectedMethod === 'daviplata' ? 'text-white' : 'text-gray-500'}`} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-gray-900">Daviplata</p>
+                    <p className="text-sm text-gray-500">Transferencia por Daviplata (online)</p>
+                  </div>
+                  {selectedMethod === 'daviplata' && (
                     <CheckCircle className="w-6 h-6 text-green-500 shrink-0" />
                   )}
                 </button>
@@ -181,7 +204,7 @@ export default function PagoPage() {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-gray-900">Efecty</p>
-                    <p className="text-sm text-gray-500">Genera un código para pagar en Efecty</p>
+                    <p className="text-sm text-gray-500">Transferencia bancaria por Efecty (online)</p>
                   </div>
                   {selectedMethod === 'efecty' && (
                     <CheckCircle className="w-6 h-6 text-green-500 shrink-0" />
