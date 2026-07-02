@@ -16,6 +16,7 @@ type Props = {
   amountInCents: number
   customerEmail?: string
   customerFullName: string
+  description?: string
   onSuccess: (transaction: TransactionResult) => Promise<void>
   onRejected?: (transaction: TransactionResult) => Promise<void>
   onPending?: (transaction: TransactionResult) => Promise<void>
@@ -47,7 +48,7 @@ function validateCard(number: string): FieldErrors {
   return errors
 }
 
-export default function WompiCardForm({ amountInCents, customerEmail, customerFullName, onSuccess, onRejected, onPending }: Props) {
+export default function WompiCardForm({ amountInCents, customerEmail, customerFullName, description, onSuccess, onRejected, onPending }: Props) {
   const router = useRouter()
   const [number, setNumber] = useState('')
   const [expiry, setExpiry] = useState('')
@@ -145,6 +146,7 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
           customerEmail: customerEmail || '',
           customerFullName,
           installments,
+          ...(description && { description }),
         }),
       })
 

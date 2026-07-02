@@ -486,6 +486,7 @@ export default function ResumenPage() {
                   amountInCents={Math.round(total * 100)}
                   customerEmail={session?.user?.email || undefined}
                   customerFullName={data.nombreCompleto}
+                  description={items.map(i => `${i.quantity}x ${i.name}`).join(', ')}
                   onSuccess={handleTarjetaSuccess}
                   onRejected={handleTarjetaRejected}
                   onPending={handleTarjetaPending}

@@ -4,7 +4,7 @@ import { generateSignature, generateReference, WOMPI_PUBLIC_KEY, WOMPI_CURRENCY,
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { cardToken, amountInCents, customerEmail, customerFullName, installments = 1 } = body
+    const { cardToken, amountInCents, customerEmail, customerFullName, installments = 1, description } = body
 
     if (!cardToken || !amountInCents || amountInCents <= 0) {
       return Response.json({ message: 'Parámetros inválidos' }, { status: 400 })
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       acceptance_token: acceptanceToken,
       ...(personalAuthToken && { accept_personal_auth: personalAuthToken }),
       customer_email: customerEmail || '',
+      ...(description && { description }),
       payment_method: {
         type: 'CARD',
         token: cardToken,
