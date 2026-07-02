@@ -24,7 +24,7 @@ type Props = {
 };
 
 export default function CartDrawer({ open, onClose }: Props) {
-  const { items, loading, removeItem, updateQuantity, itemCount, subtotal, discount, total } =
+  const { items, loading, removeItem, updateQuantity, itemCount, subtotal, discount, delivery, total } =
     useCart();
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -174,6 +174,10 @@ export default function CartDrawer({ open, onClose }: Props) {
                   <span>-{formatPrice(discount)}</span>
                 </div>
               )}
+              <div className="flex justify-between text-white/70">
+                <span>Domicilio</span>
+                <span className="text-white">{formatPrice(delivery)}</span>
+              </div>
               <div className="border-t border-white/20 pt-2 flex justify-between text-base font-bold">
                 <span className="text-white">Total</span>
                 <span className="text-white">{formatPrice(total)}</span>

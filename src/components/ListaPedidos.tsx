@@ -41,6 +41,7 @@ type Pedido = {
   items: PedidoItem[];
   subtotal: number;
   discount: number;
+  delivery: number;
   total: number;
   paymentMethod?: string;
   wompiStatus?: string;
@@ -357,6 +358,12 @@ export default function ListaPedidos() {
                           </p>
                         </div>
                       )}
+                      <div>
+                        <span className="text-gray-600">Domicilio:</span>
+                        <p className="font-medium">
+                          {formatPrice(pedido.delivery)}
+                        </p>
+                      </div>
                       <div>
                         <span className="text-gray-600">Total:</span>
                         <p className="font-bold">

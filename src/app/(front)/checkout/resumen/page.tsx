@@ -22,7 +22,7 @@ type ResumenData = {
 export default function ResumenPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const { items, total, subtotal, discount, clearCart } = useCart()
+  const { items, total, subtotal, discount, delivery, clearCart } = useCart()
   const [saving, setSaving] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [pendingTransaction, setPendingTransaction] = useState<{ id: string; status: string; reference: string } | null>(null)
@@ -49,6 +49,7 @@ export default function ResumenPage() {
           items,
           subtotal,
           discount,
+          delivery,
           total,
           paymentMethod: 'efectivo',
         }),
@@ -89,6 +90,7 @@ export default function ResumenPage() {
           items,
           subtotal,
           discount,
+          delivery,
           total,
           paymentMethod: 'tarjeta',
           wompiTransactionId: transaction.id,
@@ -121,6 +123,7 @@ export default function ResumenPage() {
           items,
           subtotal,
           discount,
+          delivery,
           total,
           paymentMethod: 'tarjeta',
           wompiTransactionId: transaction.id,
@@ -165,6 +168,7 @@ export default function ResumenPage() {
           items,
           subtotal,
           discount,
+          delivery,
           total,
           paymentMethod: 'tarjeta',
           wompiTransactionId: transaction.id,
@@ -178,7 +182,7 @@ export default function ResumenPage() {
     }
 
     setPendingTransaction(transaction)
-  }, [data, items, subtotal, discount, total])
+  }, [data, items, subtotal, discount, delivery, total])
 
   useEffect(() => {
     if (!pendingTransaction) return
@@ -439,6 +443,10 @@ export default function ResumenPage() {
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-gray-500">
+                  <span>Domicilio</span>
+                  <span className="text-gray-900">{formatPrice(delivery)}</span>
+                </div>
                 <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold">
                   <span className="text-gray-900">Total</span>
                   <span className="text-green-600">{formatPrice(total)}</span>

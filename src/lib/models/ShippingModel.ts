@@ -20,6 +20,7 @@ export type Shipping = {
   items: ShippingItem[]
   subtotal: number
   discount: number
+  delivery: number
   total: number
   paymentMethod?: string
   wompiTransactionId?: string
@@ -53,6 +54,7 @@ const ShippingSchema = new mongoose.Schema(
     items: [ShippingItemSchema],
     subtotal: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
+    delivery: { type: Number, default: 12000 },
     total: { type: Number, default: 0 },
     paymentMethod: { type: String },
     wompiTransactionId: { type: String },

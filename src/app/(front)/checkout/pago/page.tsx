@@ -19,7 +19,7 @@ type ShippingData = {
 export default function PagoPage() {
   const { status } = useSession()
   const router = useRouter()
-  const { items, total, subtotal, discount } = useCart()
+  const { items, total, subtotal, discount, delivery } = useCart()
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null)
   const [shipping] = useState<ShippingData | null>(() => {
     if (typeof window !== 'undefined') {
@@ -201,6 +201,10 @@ export default function PagoPage() {
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-gray-500">
+                  <span>Domicilio</span>
+                  <span className="text-gray-900">{formatPrice(delivery)}</span>
+                </div>
                 <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold">
                   <span className="text-gray-900">Total</span>
                   <span className="text-green-600">{formatPrice(total)}</span>

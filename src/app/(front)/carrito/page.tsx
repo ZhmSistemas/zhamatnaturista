@@ -13,7 +13,7 @@ import { showToast } from 'nextjs-toast-notify'
 export default function CartPage() {
   const router = useRouter()
   const { data: session } = useSession()
-  const { items, removeItem, updateQuantity, clearCart, itemCount, subtotal, discount, total } = useCart()
+  const { items, removeItem, updateQuantity, clearCart, itemCount, subtotal, discount, delivery, total } = useCart()
   const [clearing, setClearing] = useState(false)
 
   return (
@@ -158,6 +158,10 @@ export default function CartPage() {
                       <span>-{formatPrice(discount)}</span>
                     </div>
                   )}
+                  <div className="flex justify-between text-gray-500">
+                    <span>Domicilio</span>
+                    <span className="text-gray-900">{formatPrice(delivery)}</span>
+                  </div>
                   <div className="border-t border-gray-200 pt-3 flex justify-between text-lg font-bold">
                     <span className="text-gray-900">Total</span>
                     <span className="text-green-600">{formatPrice(total)}</span>

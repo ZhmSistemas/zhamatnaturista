@@ -86,7 +86,7 @@ export const POST = async (request: NextRequest) => {
     await ShippingModel.collection.createIndex({ userId: 1 })
 
     const body = await request.json()
-    const { nombreCompleto, direccion, ciudad, whatsapp, barrio, items, subtotal, discount, total, paymentMethod, wompiTransactionId, wompiReference, wompiStatus, status } = body
+    const { nombreCompleto, direccion, ciudad, whatsapp, barrio, items, subtotal, discount, delivery, total, paymentMethod, wompiTransactionId, wompiReference, wompiStatus, status } = body
 
     if (!nombreCompleto || !direccion || !ciudad || !whatsapp || !barrio) {
       return Response.json({ message: 'Todos los campos son obligatorios' }, { status: 400 })
@@ -106,6 +106,7 @@ export const POST = async (request: NextRequest) => {
       items,
       subtotal: subtotal ?? 0,
       discount: discount ?? 0,
+      delivery: delivery ?? 12000,
       total: total ?? 0,
       paymentMethod: paymentMethod ?? undefined,
       wompiTransactionId: wompiTransactionId ?? undefined,

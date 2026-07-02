@@ -9,7 +9,7 @@ import { Loader } from 'lucide-react'
 function ProcesandoPagoContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { items, total, subtotal, discount, clearCart } = useCart()
+  const { items, total, subtotal, discount, delivery, clearCart } = useCart()
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
   const [message, setMessage] = useState('')
 
@@ -41,6 +41,7 @@ function ProcesandoPagoContent() {
                     items,
                     subtotal,
                     discount,
+                    delivery,
                     total,
                     paymentMethod,
                     wompiTransactionId: transactionId,
@@ -88,6 +89,7 @@ function ProcesandoPagoContent() {
             items,
             subtotal,
             discount,
+            delivery,
             total,
             paymentMethod,
             wompiTransactionId: transactionId,

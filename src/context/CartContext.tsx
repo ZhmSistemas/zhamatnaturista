@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 
+export const DELIVERY_COST = 12000
+
 export type CartItemType = {
   productId: string
   name: string
@@ -21,6 +23,7 @@ type CartContextType = {
   itemCount: number
   subtotal: number
   discount: number
+  delivery: number
   total: number
   cartOpen: boolean
   openCart: () => void
@@ -116,6 +119,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     0
   )
   const totalDiscount = subtotal - discountTotal
+  const delivery = items.length > 0 ? DELIVERY_COST : 0
 
   return (
     <CartContext.Provider
@@ -129,7 +133,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         itemCount,
         subtotal,
         discount: totalDiscount,
-        total: discountTotal,
+        delivery,
+        total: discountTotal + delivery,
         cartOpen,
         openCart,
         closeCart,

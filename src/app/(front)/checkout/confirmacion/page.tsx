@@ -36,6 +36,7 @@ type ShippingData = {
   items: ShippingItem[];
   subtotal: number;
   discount: number;
+  delivery: number;
   total: number;
 };
 
@@ -380,6 +381,10 @@ function ConfirmacionContent() {
                     <span>-{formatPrice(shipping.discount)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-gray-400">
+                  <span>Domicilio</span>
+                  <span className="text-white">{formatPrice(shipping.delivery)}</span>
+                </div>
                 <div className="border-t border-green-500/20 pt-3 flex justify-between text-lg font-bold">
                   <span className="text-white">Total</span>
                   <span className="text-green-400">
