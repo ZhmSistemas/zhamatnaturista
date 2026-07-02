@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 
 export type CartItemType = {
   productId: string
@@ -47,21 +47,20 @@ function saveItems(items: CartItemType[]) {
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItemType[]>([])
-  const [initialized, setInitialized] = useState(false)
+  const [items, setItems] = useState<CartItemType[]>(loadItems)
   const [cartOpen, setCartOpen] = useState(false)
+  const initialLoadDone = useRef(false)
 
   const openCart = useCallback(() => setCartOpen(true), [])
   const closeCart = useCallback(() => setCartOpen(false), [])
 
   useEffect(() => {
-    setItems(loadItems())
-    setInitialized(true)
-  }, [])
-
-  useEffect(() => {
-    if (initialized) saveItems(items)
-  }, [items, initialized])
+    if (initialLoadDone.current) {
+      saveItems(items)
+    } else {
+      initialLoadDone.current = true
+    }
+  }, [items])
 
   const addItem = useCallback(async (productId: string, quantity = 1) => {
     const res = await fetch(`/api/products/${productId}`)
@@ -122,7 +121,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider
       value={{
         items,
-        loading: !initialized,
+        loading: false,
         addItem,
         removeItem,
         updateQuantity,
