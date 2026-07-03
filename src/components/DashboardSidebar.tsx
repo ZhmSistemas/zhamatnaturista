@@ -6,8 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 
 type MenuOption =
-  | "creafactura"
-  | "muestrafactura"
+  | "inicio"
   | "creaproducto"
   | "muestraproducto"
   | "creacliente"
@@ -17,8 +16,7 @@ type MenuOption =
   | "creacategoria";
 
 const menuItems: { id: MenuOption; label: string; icon: string }[] = [
-  { id: "creafactura", label: "Crear Factura", icon: "📄" },
-  { id: "muestrafactura", label: "Mostrar Factura", icon: "📋" },
+  { id: "inicio", label: "Inicio", icon: "🏠" },
   { id: "creaproducto", label: "Crear Productos", icon: "📦" },
   { id: "muestraproducto", label: "Mostrar Productos", icon: "📦" },
   { id: "creacliente", label: "Crear Cliente", icon: "👤" },
@@ -29,8 +27,7 @@ const menuItems: { id: MenuOption; label: string; icon: string }[] = [
 ];
 
 const optionRoutes: Record<MenuOption, string> = {
-  creafactura: "/dashboard/facturas/creafactura",
-  muestrafactura: "/dashboard/facturas/muestrafactura",
+  inicio: "/",
   creaproducto: "/dashboard/productos/creaproducto",
   muestraproducto: "/dashboard/productos/mostrarproductos",
   creacliente: "/dashboard/clientes/creacliente",
