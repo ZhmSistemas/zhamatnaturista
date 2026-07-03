@@ -25,7 +25,8 @@ export default function NaturalProducts() {
       try {
         const res = await fetch('/api/products')
         const data = await res.json()
-        setProducts(Array.isArray(data) ? data.slice(0, 6) : [])
+        const items = Array.isArray(data) ? data : data.products
+        setProducts(items ? items.slice(0, 6) : [])
       } catch {
         console.error('Error al cargar productos')
       } finally {

@@ -7,14 +7,35 @@ export const GET = async (request: NextRequest) => {
     await dbConnect()
     const { searchParams } = new URL(request.url)
     const discounted = searchParams.get('discounted')
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = parseInt(searchParams.get('limit') || '0', 10)
 
     const query: Record<string, unknown> = {}
     if (discounted === 'true') {
       query.discount = { $gt: 0 }
     }
 
+    const totalProducts = await ProductModel.countDocuments(query)
+
+    if (limit > 0) {
+      const skip = (page - 1) * limit
+      const products = await ProductModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+      return Response.json(
+        {
+          products,
+          totalProducts,
+          totalPages: Math.ceil(totalProducts / limit),
+          currentPage: page,
+        },
+        { status: 200 }
+      )
+    }
+
     const products = await ProductModel.find(query).sort({ createdAt: -1 })
-    return Response.json(products, { status: 200 })
+    return Response.json({ products, totalProducts, totalPages: 1, currentPage: 1 }, { status: 200 })
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
     return Response.json(

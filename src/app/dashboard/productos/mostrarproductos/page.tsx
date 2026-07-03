@@ -5,7 +5,8 @@ async function getProducts() {
   const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
   const res = await fetch(`${baseUrl}/api/products`, { cache: 'no-store' })
   if (!res.ok) throw new Error('Error al obtener productos')
-  const products: Product[] = await res.json()
+  const data = await res.json()
+  const products: Product[] = Array.isArray(data) ? data : data.products
   return products
 }
 

@@ -20,27 +20,42 @@ import Image from "next/image";
 export default function ProductosFront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
   const { addItem, openCart } = useCart();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch("/api/products");
-        const data = await res.json();
-        if (res.ok) {
-          setProducts(data);
-        } else {
-          console.error("Error API:", data.message);
-          setProducts([]);
-        }
-      } catch {
-        console.error("Error al cargar productos");
-      } finally {
-        setLoading(false);
+  const fetchProducts = async (page: number) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/products?page=${page}&limit=9`);
+      const data = await res.json();
+      if (res.ok) {
+        const items = Array.isArray(data) ? data : data.products;
+        setProducts(items || []);
+        setTotalPages(data.totalPages || 1);
+        setCurrentPage(data.currentPage || 1);
+        setTotalProducts(data.totalProducts || 0);
+      } else {
+        console.error("Error API:", data.message);
+        setProducts([]);
       }
-    };
-    fetchProducts();
+    } catch {
+      console.error("Error al cargar productos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts(1);
   }, []);
+
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    fetchProducts(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   if (loading) {
     return (
@@ -76,8 +91,8 @@ export default function ProductosFront() {
               </span>
             </h2>
             <p className="text-gray-500 text-lg max-w-2xl mx-auto">
-              {products.length} producto{products.length !== 1 ? "s" : ""}{" "}
-              disponible{products.length !== 1 ? "s" : ""}
+              {totalProducts} producto{totalProducts !== 1 ? "s" : ""}{" "}
+              disponible{totalProducts !== 1 ? "s" : ""}
             </p>
           </div>
 
@@ -208,6 +223,40 @@ export default function ProductosFront() {
               );
             })}
           </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-12">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Anterior
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`w-10 h-10 rounded-lg font-semibold transition-colors ${
+                      page === currentPage
+                        ? "bg-green-600 text-white"
+                        : "border border-gray-300 text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Siguiente
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
