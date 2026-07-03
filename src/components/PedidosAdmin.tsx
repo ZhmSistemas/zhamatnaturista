@@ -68,7 +68,10 @@ export default function PedidosAdmin() {
     fetchPedidos();
   }, []);
 
-  const toggleEnviado = async (id: string) => {
+  const toggleEnviado = async (id: string, enviadoActual: boolean) => {
+    const accion = enviadoActual ? "marcar como no enviado" : "marcar como enviado";
+    if (!window.confirm(`¿Estás seguro de ${accion} este pedido?`)) return;
+
     try {
       const res = await fetch(`/api/shipping/admin/${id}`, {
         method: "PATCH",
@@ -92,6 +95,8 @@ export default function PedidosAdmin() {
   };
 
   const marcarPagado = async (id: string) => {
+    if (!window.confirm("¿Estás seguro de marcar este pago como recibido?")) return;
+
     try {
       const res = await fetch(`/api/shipping/admin/${id}`, {
         method: "PATCH",
@@ -289,7 +294,7 @@ export default function PedidosAdmin() {
                         </button>
                       )}
                       <button
-                        onClick={() => toggleEnviado(pedido._id)}
+                        onClick={() => toggleEnviado(pedido._id, pedido.enviado)}
                         disabled={rechazado}
                         className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
                           rechazado
