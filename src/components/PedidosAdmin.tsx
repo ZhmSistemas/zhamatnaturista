@@ -31,6 +31,20 @@ type Shipping = {
   createdAt: string;
 };
 
+const statusLabel: Record<string, string> = {
+  pending: "Pendiente",
+  paid: "Pagado",
+  rejected: "Rechazado",
+};
+
+const statusColors: Record<string, string> = {
+  pending: "bg-yellow-100 text-yellow-700",
+  paid: "bg-green-100 text-green-700",
+  rejected: "bg-red-100 text-red-700",
+};
+
+const isRechazado = (status?: string) => status === "rejected";
+
 export default function PedidosAdmin() {
   const [pedidos, setPedidos] = useState<Shipping[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,146 +121,165 @@ export default function PedidosAdmin() {
         <p className="text-gray-500 text-center py-12">No hay pedidos registrados</p>
       ) : (
         <div className="space-y-4">
-          {pedidos.map((pedido) => (
-            <div
-              key={pedido._id}
-              className="rounded-xl bg-white shadow-lg overflow-hidden"
-            >
+          {pedidos.map((pedido) => {
+            const rechazado = isRechazado(pedido.status);
+
+            return (
               <div
-                className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() =>
-                  setExpandedId(expandedId === pedido._id ? null : pedido._id)
-                }
+                key={pedido._id}
+                className="rounded-xl bg-white shadow-lg overflow-hidden"
               >
-                <div className="flex items-center gap-4">
-                  <span
-                    className={`w-3 h-3 rounded-full ${
-                      pedido.enviado ? "bg-green-500" : "bg-yellow-400"
-                    }`}
-                  />
-                  <div>
-                    <p className="font-semibold text-gray-900">
-                      {pedido.nombreCompleto}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {formatDate(pedido.createdAt)} — {pedido.items.length}{" "}
-                      producto(s)
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-gray-700">
-                    {formatPrice(pedido.total)}
-                  </span>
-                  <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      pedido.enviado
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
-                    {pedido.enviado ? "Enviado" : "Pendiente"}
-                  </span>
-                </div>
-              </div>
-
-              {expandedId === pedido._id && (
-                <div className="border-t border-gray-200 p-4 space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                <div
+                  className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() =>
+                    setExpandedId(expandedId === pedido._id ? null : pedido._id)
+                  }
+                >
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={`w-3 h-3 rounded-full ${
+                        rechazado
+                          ? "bg-red-500"
+                          : pedido.enviado
+                            ? "bg-green-500"
+                            : "bg-yellow-400"
+                      }`}
+                    />
                     <div>
-                      <p className="text-gray-500">Dirección</p>
-                      <p className="font-medium">
-                        {pedido.direccion}, {pedido.barrio}, {pedido.ciudad}
+                      <p className="font-semibold text-gray-900">
+                        {pedido.nombreCompleto}
                       </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">WhatsApp</p>
-                      <p className="font-medium">{pedido.whatsapp}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Método de pago</p>
-                      <p className="font-medium capitalize">
-                        {pedido.paymentMethod ?? "No especificado"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500">Estado del pago</p>
-                      <p className="font-medium capitalize">
-                        {pedido.status ?? "pending"}
+                      <p className="text-sm text-gray-500">
+                        {formatDate(pedido.createdAt)} — {pedido.items.length}{" "}
+                        producto(s)
                       </p>
                     </div>
                   </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-gray-700">
+                      {formatPrice(pedido.total)}
+                    </span>
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        rechazado
+                          ? "bg-red-100 text-red-700"
+                          : pedido.enviado
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {rechazado ? "Rechazado" : pedido.enviado ? "Enviado" : "Pendiente"}
+                    </span>
+                  </div>
+                </div>
 
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">
-                      Productos
-                    </p>
-                    <div className="space-y-2">
-                      {pedido.items.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center gap-3 bg-gray-50 rounded-lg p-3"
+                {expandedId === pedido._id && (
+                  <div className="border-t border-gray-200 p-4 space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-500">Dirección</p>
+                        <p className="font-medium">
+                          {pedido.direccion}, {pedido.barrio}, {pedido.ciudad}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">WhatsApp</p>
+                        <p className="font-medium">{pedido.whatsapp}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500">Método de pago</p>
+                        <p className="font-medium capitalize">
+                          {pedido.paymentMethod ?? "No especificado"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-500 mb-1">Estado del pago</p>
+                        <span
+                          className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                            statusColors[pedido.status ?? "pending"]
+                          }`}
                         >
-                          {item.image && (
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-12 h-12 rounded object-cover"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{item.name}</p>
-                            <p className="text-xs text-gray-500">
-                              {formatPrice(item.price)} x {item.quantity}
-                            </p>
-                          </div>
-                          <p className="font-medium text-sm">
-                            {formatPrice(item.price * item.quantity)}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-200 pt-3 space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Subtotal</span>
-                      <span>{formatPrice(pedido.subtotal)}</span>
-                    </div>
-                    {pedido.discount > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Descuento</span>
-                        <span className="text-red-600">
-                          -{formatPrice(pedido.discount)}
+                          {statusLabel[pedido.status ?? "pending"] ?? pedido.status}
                         </span>
                       </div>
-                    )}
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Envío</span>
-                      <span>{formatPrice(pedido.delivery)}</span>
                     </div>
-                    <div className="flex justify-between font-semibold text-base pt-1 border-t border-gray-200">
-                      <span>Total</span>
-                      <span>{formatPrice(pedido.total)}</span>
-                    </div>
-                  </div>
 
-                  <button
-                    onClick={() => toggleEnviado(pedido._id)}
-                    className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                      pedido.enviado
-                        ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                        : "bg-green-600 text-white hover:bg-green-700"
-                    }`}
-                  >
-                    {pedido.enviado
-                      ? "Marcar como no enviado"
-                      : "Marcar como enviado"}
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">
+                        Productos
+                      </p>
+                      <div className="space-y-2">
+                        {pedido.items.map((item, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 bg-gray-50 rounded-lg p-3"
+                          >
+                            {item.image && (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-12 h-12 rounded object-cover"
+                              />
+                            )}
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{item.name}</p>
+                              <p className="text-xs text-gray-500">
+                                {formatPrice(item.price)} x {item.quantity}
+                              </p>
+                            </div>
+                            <p className="font-medium text-sm">
+                              {formatPrice(item.price * item.quantity)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-3 space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Subtotal</span>
+                        <span>{formatPrice(pedido.subtotal)}</span>
+                      </div>
+                      {pedido.discount > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Descuento</span>
+                          <span className="text-red-600">
+                            -{formatPrice(pedido.discount)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Envío</span>
+                        <span>{formatPrice(pedido.delivery)}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold text-base pt-1 border-t border-gray-200">
+                        <span>Total</span>
+                        <span>{formatPrice(pedido.total)}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => toggleEnviado(pedido._id)}
+                      disabled={rechazado}
+                      className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                        rechazado
+                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                          : pedido.enviado
+                            ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                            : "bg-green-600 text-white hover:bg-green-700"
+                      }`}
+                    >
+                      {rechazado
+                        ? "No disponible (pago rechazado)"
+                        : pedido.enviado
+                          ? "Marcar como no enviado"
+                          : "Marcar como enviado"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
