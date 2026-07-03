@@ -25,7 +25,32 @@ export default function ProductosFront() {
   const [totalProducts, setTotalProducts] = useState(0);
   const { addItem, openCart } = useCart();
 
-  const fetchProducts = async (page: number) => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products?page=1&limit=9");
+        const data = await res.json();
+        if (res.ok) {
+          const items = Array.isArray(data) ? data : data.products;
+          setProducts(items || []);
+          setTotalPages(data.totalPages || 1);
+          setCurrentPage(data.currentPage || 1);
+          setTotalProducts(data.totalProducts || 0);
+        } else {
+          console.error("Error API:", data.message);
+          setProducts([]);
+        }
+      } catch {
+        console.error("Error al cargar productos");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const goToPage = async (page: number) => {
+    if (page < 1 || page > totalPages) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/products?page=${page}&limit=9`);
@@ -45,15 +70,6 @@ export default function ProductosFront() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchProducts(1);
-  }, []);
-
-  const goToPage = (page: number) => {
-    if (page < 1 || page > totalPages) return;
-    fetchProducts(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
