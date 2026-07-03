@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import React from "react";
+import DashboardSidebar from "@/components/DashboardSidebar";
 
 export default async function DashboardLayout({
   children,
@@ -10,11 +11,15 @@ export default async function DashboardLayout({
 }) {
   const session = await getServerSession(authOptions);
 
-  // Si no hay sesión o el usuario NO es admin, redirigir
   if (!session || !session.user?.isAdmin) {
-    redirect("/auth/login"); // Puedes cambiar a "/auth/login" o donde gustes
+    redirect("/auth/login");
   }
 
-  // Si es admin, mostramos el contenido del dashboard SIN el Navbar general
-  return <>{children}</>;
+  return (
+    <div className="flex h-[calc(100vh-4rem)] relative">
+      <DashboardSidebar />
+      <div className="flex-1 overflow-hidden bg-gray-100">{children}</div>
+    </div>
+  );
 }
+
