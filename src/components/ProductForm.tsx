@@ -345,7 +345,14 @@ export default function ProductForm() {
               </select>
               <button
                 type="button"
-                onClick={() => window.open("/dashboard/categorias/creacategoria", "_blank")}
+                onClick={() => {
+                  if (window.parent !== window) {
+                    window.parent.postMessage(
+                      { type: "UPDATE_DASHBOARD_SELECTION", option: "creacategoria" },
+                      "*"
+                    );
+                  }
+                }}
                 className="flex shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-600 shadow-sm hover:bg-gray-50 hover:text-indigo-600"
                 title="Agregar nueva categoría"
               >
@@ -375,7 +382,14 @@ export default function ProductForm() {
               </select>
               <button
                 type="button"
-                onClick={() => window.open("/dashboard/marcas/creamarca", "_blank")}
+                onClick={() => {
+                  if (window.parent !== window) {
+                    window.parent.postMessage(
+                      { type: "UPDATE_DASHBOARD_SELECTION", option: "creamarca" },
+                      "*"
+                    );
+                  }
+                }}
                 className="flex shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-600 shadow-sm hover:bg-gray-50 hover:text-indigo-600"
                 title="Agregar nueva marca"
               >
