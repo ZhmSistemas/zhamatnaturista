@@ -25,10 +25,15 @@ export default function ProductosFront() {
   const [totalProducts, setTotalProducts] = useState(0);
   const { addItem, openCart } = useCart();
 
+  const getLimit = () => {
+    if (typeof window === 'undefined') return 21;
+    return window.innerWidth < 768 ? 10 : 21;
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("/api/products?page=1&limit=9");
+        const res = await fetch(`/api/products?page=1&limit=${getLimit()}`);
         const data = await res.json();
         if (res.ok) {
           const items = Array.isArray(data) ? data : data.products;
@@ -53,7 +58,7 @@ export default function ProductosFront() {
     if (page < 1 || page > totalPages) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/products?page=${page}&limit=9`);
+      const res = await fetch(`/api/products?page=${page}&limit=${getLimit()}`);
       const data = await res.json();
       if (res.ok) {
         const items = Array.isArray(data) ? data : data.products;
