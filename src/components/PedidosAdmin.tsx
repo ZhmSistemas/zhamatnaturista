@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { showToast } from "nextjs-toast-notify";
+import ConfirmModal from "./ConfirmModal";
 
 type ShippingItem = {
   productId: string;
@@ -45,10 +46,16 @@ const statusColors: Record<string, string> = {
 
 const isRechazado = (status?: string) => status === "rejected";
 
+type ConfirmAction =
+  | { type: "enviado"; id: string; enviadoActual: boolean }
+  | { type: "pagado"; id: string }
+  | null;
+
 export default function PedidosAdmin() {
   const [pedidos, setPedidos] = useState<Shipping[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmAction>(null);
 
   const fetchPedidos = async () => {
     try {
@@ -68,10 +75,7 @@ export default function PedidosAdmin() {
     fetchPedidos();
   }, []);
 
-  const toggleEnviado = async (id: string, enviadoActual: boolean) => {
-    const accion = enviadoActual ? "marcar como no enviado" : "marcar como enviado";
-    if (!window.confirm(`¿Estás seguro de ${accion} este pedido?`)) return;
-
+  const ejecutarToggleEnviado = async (id: string) => {
     try {
       const res = await fetch(`/api/shipping/admin/${id}`, {
         method: "PATCH",
@@ -94,9 +98,7 @@ export default function PedidosAdmin() {
     }
   };
 
-  const marcarPagado = async (id: string) => {
-    if (!window.confirm("¿Estás seguro de marcar este pago como recibido?")) return;
-
+  const ejecutarMarcarPagado = async (id: string) => {
     try {
       const res = await fetch(`/api/shipping/admin/${id}`, {
         method: "PATCH",
@@ -113,6 +115,21 @@ export default function PedidosAdmin() {
       console.error(error);
       showToast.error("Error al actualizar el pago");
     }
+  };
+
+  const confirmarEnviado = (id: string, enviadoActual: boolean) => {
+    setConfirm({ type: "enviado", id, enviadoActual });
+  };
+
+  const confirmarPagado = (id: string) => {
+    setConfirm({ type: "pagado", id });
+  };
+
+  const handleConfirm = () => {
+    if (!confirm) return;
+    if (confirm.type === "enviado") ejecutarToggleEnviado(confirm.id);
+    if (confirm.type === "pagado") ejecutarMarcarPagado(confirm.id);
+    setConfirm(null);
   };
 
   const formatPrice = (price: number) =>
@@ -287,14 +304,14 @@ export default function PedidosAdmin() {
                     <div className="flex gap-2">
                       {pedido.paymentMethod === "efectivo" && pedido.status !== "paid" && (
                         <button
-                          onClick={() => marcarPagado(pedido._id)}
+                          onClick={() => confirmarPagado(pedido._id)}
                           className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                         >
                           Marcar como pagado
                         </button>
                       )}
                       <button
-                        onClick={() => toggleEnviado(pedido._id, pedido.enviado)}
+                        onClick={() => confirmarEnviado(pedido._id, pedido.enviado)}
                         disabled={rechazado}
                         className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
                           rechazado
@@ -318,6 +335,32 @@ export default function PedidosAdmin() {
           })}
         </div>
       )}
+
+      <ConfirmModal
+        open={confirm !== null}
+        title={
+          confirm?.type === "pagado"
+            ? "Confirmar pago"
+            : confirm?.type === "enviado"
+              ? confirm.enviadoActual
+                ? "Confirmar"
+                : "Confirmar envío"
+              : ""
+        }
+        message={
+          confirm?.type === "pagado"
+            ? "¿Estás seguro de marcar este pago como recibido?"
+            : confirm?.type === "enviado"
+              ? confirm.enviadoActual
+                ? "¿Estás seguro de marcar este pedido como no enviado?"
+                : "¿Estás seguro de marcar este pedido como enviado?"
+              : ""
+        }
+        confirmLabel="Sí, confirmar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }
