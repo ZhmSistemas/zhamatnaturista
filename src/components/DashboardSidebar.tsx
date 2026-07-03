@@ -7,6 +7,7 @@ import Link from "next/link";
 
 type MenuOption =
   | "inicio"
+  | "pedidos"
   | "creaproducto"
   | "muestraproducto"
   | "creacliente"
@@ -17,6 +18,7 @@ type MenuOption =
 
 const menuItems: { id: MenuOption; label: string; icon: string }[] = [
   { id: "inicio", label: "Inicio", icon: "🏠" },
+  { id: "pedidos", label: "Pedidos", icon: "📦" },
   { id: "creaproducto", label: "Crear Productos", icon: "📦" },
   { id: "muestraproducto", label: "Mostrar Productos", icon: "📦" },
   { id: "creacliente", label: "Crear Cliente", icon: "👤" },
@@ -28,6 +30,7 @@ const menuItems: { id: MenuOption; label: string; icon: string }[] = [
 
 const optionRoutes: Record<MenuOption, string> = {
   inicio: "/",
+  pedidos: "/dashboard/pedidos",
   creaproducto: "/dashboard/productos/creaproducto",
   muestraproducto: "/dashboard/productos/mostrarproductos",
   creacliente: "/dashboard/clientes/creacliente",

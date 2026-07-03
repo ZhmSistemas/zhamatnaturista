@@ -27,6 +27,7 @@ export type Shipping = {
   wompiReference?: string
   wompiStatus?: string
   status?: string
+  enviado: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -61,6 +62,7 @@ const ShippingSchema = new mongoose.Schema(
     wompiReference: { type: String },
     wompiStatus: { type: String },
     status: { type: String, default: 'pending' },
+    enviado: { type: Boolean, default: false },
   },
   { timestamps: true }
 )
