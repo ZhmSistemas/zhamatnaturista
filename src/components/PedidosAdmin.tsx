@@ -207,7 +207,7 @@ export default function PedidosAdmin() {
                         statusColors[pedido.status ?? "pending"]
                       }`}
                     >
-                      {statusLabel[pedido.status ?? "pending"] ?? pedido.status}
+                      Pago: {statusLabel[pedido.status ?? "pending"] ?? pedido.status}
                     </span>
                     {!rechazado && (
                       <span
@@ -217,7 +217,7 @@ export default function PedidosAdmin() {
                             : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
-                        {pedido.enviado ? "Enviado" : "Pendiente"}
+                        Envío: {pedido.enviado ? "Enviado" : "Pendiente"}
                       </span>
                     )}
                   </div>
