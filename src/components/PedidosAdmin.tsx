@@ -198,21 +198,28 @@ export default function PedidosAdmin() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-700">
                       {formatPrice(pedido.total)}
                     </span>
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        rechazado
-                          ? "bg-red-100 text-red-700"
-                          : pedido.enviado
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
+                        statusColors[pedido.status ?? "pending"]
                       }`}
                     >
-                      {rechazado ? "Rechazado" : pedido.enviado ? "Enviado" : "Pendiente"}
+                      {statusLabel[pedido.status ?? "pending"] ?? pedido.status}
                     </span>
+                    {!rechazado && (
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          pedido.enviado
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {pedido.enviado ? "Enviado" : "Pendiente"}
+                      </span>
+                    )}
                   </div>
                 </div>
 
