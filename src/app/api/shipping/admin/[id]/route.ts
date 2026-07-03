@@ -15,6 +15,7 @@ export const PATCH = async (
     }
 
     const { id } = await params
+    const body = await request.json()
 
     await dbConnect()
     const shipping = await ShippingModel.findById(id)
@@ -22,7 +23,14 @@ export const PATCH = async (
       return Response.json({ message: 'Pedido no encontrado' }, { status: 404 })
     }
 
-    shipping.enviado = !shipping.enviado
+    if (body.toggleEnviado) {
+      shipping.enviado = !shipping.enviado
+    }
+
+    if (body.status) {
+      shipping.status = body.status
+    }
+
     await shipping.save()
 
     return Response.json(shipping, { status: 200 })

@@ -72,6 +72,8 @@ export default function PedidosAdmin() {
     try {
       const res = await fetch(`/api/shipping/admin/${id}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toggleEnviado: true }),
       });
       if (!res.ok) throw new Error("Error al actualizar");
       const updated = await res.json();
@@ -86,6 +88,25 @@ export default function PedidosAdmin() {
     } catch (error) {
       console.error(error);
       showToast.error("Error al actualizar el pedido");
+    }
+  };
+
+  const marcarPagado = async (id: string) => {
+    try {
+      const res = await fetch(`/api/shipping/admin/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "paid" }),
+      });
+      if (!res.ok) throw new Error("Error al actualizar");
+      const updated = await res.json();
+      setPedidos((prev) =>
+        prev.map((p) => (p._id === id ? { ...p, status: updated.status } : p))
+      );
+      showToast.success("Pago marcado como recibido");
+    } catch (error) {
+      console.error(error);
+      showToast.error("Error al actualizar el pago");
     }
   };
 
@@ -258,23 +279,33 @@ export default function PedidosAdmin() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => toggleEnviado(pedido._id)}
-                      disabled={rechazado}
-                      className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
-                        rechazado
-                          ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    <div className="flex gap-2">
+                      {pedido.paymentMethod === "efectivo" && pedido.status !== "paid" && (
+                        <button
+                          onClick={() => marcarPagado(pedido._id)}
+                          className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                        >
+                          Marcar como pagado
+                        </button>
+                      )}
+                      <button
+                        onClick={() => toggleEnviado(pedido._id)}
+                        disabled={rechazado}
+                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
+                          rechazado
+                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            : pedido.enviado
+                              ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                              : "bg-green-600 text-white hover:bg-green-700"
+                        }`}
+                      >
+                        {rechazado
+                          ? "No disponible (pago rechazado)"
                           : pedido.enviado
-                            ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                            : "bg-green-600 text-white hover:bg-green-700"
-                      }`}
-                    >
-                      {rechazado
-                        ? "No disponible (pago rechazado)"
-                        : pedido.enviado
-                          ? "Marcar como no enviado"
-                          : "Marcar como enviado"}
-                    </button>
+                            ? "Marcar como no enviado"
+                            : "Marcar como enviado"}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
