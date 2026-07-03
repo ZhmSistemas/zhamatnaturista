@@ -18,7 +18,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-[calc(100vh-4rem)] relative">
       <DashboardSidebar />
-      <div className="flex-1 overflow-hidden bg-gray-100">{children}</div>
+      <div className="flex-1 overflow-y-auto bg-gray-100">{children}</div>
     </div>
   );
 }
