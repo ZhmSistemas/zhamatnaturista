@@ -332,16 +332,28 @@ export default function ProductForm() {
             <label htmlFor="categoria" className="block text-sm font-medium text-gray-700">
               Categoría
             </label>
-            <select
-              id="categoria"
-              {...register("categoria")}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-            >
-              <option value="">Seleccionar categoría</option>
-              {categories.map((c) => (
-                <option key={c._id} value={c.name}>{c.name}</option>
-              ))}
-            </select>
+            <div className="mt-1 flex gap-2">
+              <select
+                id="categoria"
+                {...register("categoria")}
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="">Seleccionar categoría</option>
+                {categories.map((c) => (
+                  <option key={c._id} value={c.name}>{c.name}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => window.open("/dashboard/categorias/creacategoria", "_blank")}
+                className="flex shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-600 shadow-sm hover:bg-gray-50 hover:text-indigo-600"
+                title="Agregar nueva categoría"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
           </div>
         
 
@@ -350,16 +362,28 @@ export default function ProductForm() {
             <label htmlFor="marca" className="block text-sm font-medium text-gray-700">
               Marca
             </label>
-            <select
-              id="marca"
-              {...register("marca")}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-            >
-              <option value="">Seleccionar marca</option>
-              {brands.map((b) => (
-                <option key={b._id} value={b.name}>{b.name}</option>
-              ))}
-            </select>
+            <div className="mt-1 flex gap-2">
+              <select
+                id="marca"
+                {...register("marca")}
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              >
+                <option value="">Seleccionar marca</option>
+                {brands.map((b) => (
+                  <option key={b._id} value={b.name}>{b.name}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => window.open("/dashboard/marcas/creamarca", "_blank")}
+                className="flex shrink-0 items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-600 shadow-sm hover:bg-gray-50 hover:text-indigo-600"
+                title="Agregar nueva marca"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           
