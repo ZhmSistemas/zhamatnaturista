@@ -58,40 +58,7 @@ export default function NaturalProducts() {
               src="https://res.cloudinary.com/difisthcy/video/upload/q_auto/f_auto/v1781911862/imagen_movimiento_inicio_jgq8wy.mp4"
             />
           </video>
-          {/* <div className="absolute inset-0 bg-black/40" />
-          <div className="relative z-10 max-w-6xl mx-auto text-center px-6 sm:px-12 lg:px-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border border-green-300 mb-8">
-              <Leaf className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-semibold text-green-700">Productos 100% Naturales</span>
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6 leading-tight">
-              <span className="bg-clip-text text-transparent bg-linear-to-r from-green-600 via-emerald-600 to-teal-600">
-                Tienda Naturista Zhamat
-              </span>
-              <br />
-              <span className="text-white">Naturaleza Pura</span>
-            </h1>
-
-            <p className="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto mb-12">
-              Descubre nuestra línea de productos naturales seleccionados para tu bienestar integral
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-white/70 mb-12">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-green-500" />
-                <span>Calidad Certificada</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Truck className="w-5 h-5 text-green-500" />
-                <span>Envío en 24h</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                <span>4.9 Estrellas</span>
-              </div>
-            </div>
-          </div> */}
+        
         </div>
       </div>
 
