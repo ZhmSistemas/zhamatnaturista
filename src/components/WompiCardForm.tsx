@@ -328,9 +328,6 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
               </option>
             ))}
           </select>
-          {cardType === 'DEBIT' && (
-            <p className="text-xs text-gray-400 mt-1">Tarjeta débito — no requiere cuotas</p>
-          )}
         </div>
       )}
       {isDebit && (
