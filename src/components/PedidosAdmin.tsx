@@ -34,7 +34,7 @@ type Shipping = {
 
 const statusLabel: Record<string, string> = {
   pending: "Pendiente",
-  paid: "Pagado",
+  paid: "OK",
   rejected: "Rechazado",
 };
 
@@ -217,7 +217,7 @@ export default function PedidosAdmin() {
                             : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
-                        Envío: {pedido.enviado ? "Enviado" : "Pendiente"}
+                        Envío: {pedido.enviado ? "OK" : "Pendiente"}
                       </span>
                     )}
                   </div>
