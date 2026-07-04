@@ -49,6 +49,7 @@ const isRechazado = (status?: string) => status === "rejected";
 type ConfirmAction =
   | { type: "enviado"; id: string; enviadoActual: boolean }
   | { type: "pagado"; id: string }
+  | { type: "deshacerPago"; id: string }
   | null;
 
 export default function PedidosAdmin() {
@@ -125,10 +126,34 @@ export default function PedidosAdmin() {
     setConfirm({ type: "pagado", id });
   };
 
+  const confirmarDeshacerPago = (id: string) => {
+    setConfirm({ type: "deshacerPago", id });
+  };
+
+  const ejecutarDeshacerPago = async (id: string) => {
+    try {
+      const res = await fetch(`/api/shipping/admin/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "pending" }),
+      });
+      if (!res.ok) throw new Error("Error al actualizar");
+      const updated = await res.json();
+      setPedidos((prev) =>
+        prev.map((p) => (p._id === id ? { ...p, status: updated.status } : p))
+      );
+      showToast.success("Pago revertido a pendiente");
+    } catch (error) {
+      console.error(error);
+      showToast.error("Error al revertir el pago");
+    }
+  };
+
   const handleConfirm = () => {
     if (!confirm) return;
     if (confirm.type === "enviado") ejecutarToggleEnviado(confirm.id);
     if (confirm.type === "pagado") ejecutarMarcarPagado(confirm.id);
+    if (confirm.type === "deshacerPago") ejecutarDeshacerPago(confirm.id);
     setConfirm(null);
   };
 
@@ -317,6 +342,14 @@ export default function PedidosAdmin() {
                           Marcar como pagado
                         </button>
                       )}
+                      {pedido.paymentMethod === "efectivo" && pedido.status === "paid" && (
+                        <button
+                          onClick={() => confirmarDeshacerPago(pedido._id)}
+                          className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors"
+                        >
+                          Deshacer pago
+                        </button>
+                      )}
                       <button
                         onClick={() => confirmarEnviado(pedido._id, pedido.enviado)}
                         disabled={rechazado}
@@ -348,20 +381,24 @@ export default function PedidosAdmin() {
         title={
           confirm?.type === "pagado"
             ? "Confirmar pago"
-            : confirm?.type === "enviado"
-              ? confirm.enviadoActual
-                ? "Confirmar"
-                : "Confirmar envío"
-              : ""
+            : confirm?.type === "deshacerPago"
+              ? "Revertir pago"
+              : confirm?.type === "enviado"
+                ? confirm.enviadoActual
+                  ? "Confirmar"
+                  : "Confirmar envío"
+                : ""
         }
         message={
           confirm?.type === "pagado"
             ? "¿Estás seguro de marcar este pago como recibido?"
-            : confirm?.type === "enviado"
-              ? confirm.enviadoActual
-                ? "¿Estás seguro de marcar este pedido como no enviado?"
-                : "¿Estás seguro de marcar este pedido como enviado?"
-              : ""
+            : confirm?.type === "deshacerPago"
+              ? "¿Estás seguro de revertir el pago a pendiente?"
+              : confirm?.type === "enviado"
+                ? confirm.enviadoActual
+                  ? "¿Estás seguro de marcar este pedido como no enviado?"
+                  : "¿Estás seguro de marcar este pedido como enviado?"
+                : ""
         }
         confirmLabel="Sí, confirmar"
         cancelLabel="Cancelar"
