@@ -313,7 +313,7 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
         {errors.cardHolder && <p className="text-red-500 text-xs mt-1">{errors.cardHolder}</p>}
       </div>
 
-      {!isDebit && (
+      {cardType === 'CREDIT' && (
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1.5">Cuotas</label>
           <select
@@ -330,10 +330,10 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
           </select>
         </div>
       )}
-      {isDebit && (
+      {cardType === 'DEBIT' && (
         <div className="rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3">
           <p className="text-xs text-gray-500">
-            💳 Tarjeta débito detectada — las cuotas no aplican
+            Tarjeta débito detectada — las cuotas no aplican
           </p>
         </div>
       )}
