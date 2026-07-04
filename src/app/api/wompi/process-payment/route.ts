@@ -4,7 +4,7 @@ import { generateSignature, generateReference, WOMPI_PUBLIC_KEY, WOMPI_CURRENCY,
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { cardToken, amountInCents, customerEmail, customerFullName, installments = 1, description } = body
+    const { cardToken, amountInCents, customerEmail, customerFullName, installments = 1, description, cardType, franchise } = body
 
     if (!cardToken || !amountInCents || amountInCents <= 0) {
       return Response.json({ message: 'Parámetros inválidos' }, { status: 400 })
@@ -66,10 +66,19 @@ export async function POST(request: NextRequest) {
     console.log('🔍 [API process-payment] transaction from data?.data:', JSON.stringify(transaction))
     console.log('🔍 [API process-payment] transaction?.status:', transaction?.status)
 
+    const cardInfo = cardType || franchise ? { cardType, franchise } : undefined
+
+    const baseTransaction = {
+      id: transaction.id,
+      status: transaction.status,
+      reference: transaction.reference,
+      ...(cardInfo && { cardType: cardInfo.cardType, franchise: cardInfo.franchise }),
+    }
+
     if (transaction?.status === 'DECLINED') {
       return Response.json({
         message: 'El pago fue rechazado por el banco emisor',
-        transaction: { id: transaction.id, status: transaction.status, reference: transaction.reference },
+        transaction: baseTransaction,
       }, { status: 400 })
     }
 
@@ -77,11 +86,11 @@ export async function POST(request: NextRequest) {
       return Response.json({
         message: 'El pago está siendo verificado',
         pending: true,
-        transaction: { id: transaction.id, status: transaction.status, reference: transaction.reference },
+        transaction: baseTransaction,
       })
     }
 
-    return Response.json({ transaction })
+    return Response.json({ transaction: baseTransaction })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Error desconocido'
     return Response.json({ message }, { status: 500 })

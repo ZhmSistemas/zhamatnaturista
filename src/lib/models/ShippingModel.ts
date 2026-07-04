@@ -28,6 +28,8 @@ export type Shipping = {
   wompiStatus?: string
   status?: string
   enviado: boolean
+  cardType?: string
+  franchise?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -63,6 +65,8 @@ const ShippingSchema = new mongoose.Schema(
     wompiStatus: { type: String },
     status: { type: String, default: 'pending' },
     enviado: { type: Boolean, default: false },
+    cardType: { type: String },
+    franchise: { type: String },
   },
   { timestamps: true }
 )

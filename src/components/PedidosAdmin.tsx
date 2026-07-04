@@ -29,6 +29,8 @@ type Shipping = {
   paymentMethod?: string;
   status?: string;
   enviado: boolean;
+  cardType?: string;
+  franchise?: string;
   createdAt: string;
 };
 
@@ -278,6 +280,16 @@ export default function PedidosAdmin() {
                         </span>
                       </div>
                     </div>
+
+                    {pedido.cardType && (
+                      <div className="text-sm">
+                        <p className="text-gray-500">Tipo de tarjeta</p>
+                        <p className="font-medium">
+                          {pedido.cardType === "DEBIT" ? "Débito" : pedido.cardType === "CREDIT" ? "Crédito" : pedido.cardType}
+                          {pedido.franchise && <span className="text-gray-400"> — {pedido.franchise}</span>}
+                        </p>
+                      </div>
+                    )}
 
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2">

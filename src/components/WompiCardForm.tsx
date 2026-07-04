@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { CreditCard, Loader, Lock } from 'lucide-react'
 import { showToast } from 'nextjs-toast-notify'
@@ -10,7 +10,7 @@ const WOMPI_API_URL = NEXT_PUBLIC_WOMPI_PUBLIC_KEY.startsWith('pub_test_')
   ? 'https://sandbox.wompi.co/v1'
   : 'https://production.wompi.co/v1'
 
-type TransactionResult = { id: string; status: string; reference: string }
+export type TransactionResult = { id: string; status: string; reference: string; cardType?: string; franchise?: string }
 
 type Props = {
   amountInCents: number
@@ -58,7 +58,17 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
   const [errors, setErrors] = useState<FieldErrors>({})
   const [processing, setProcessing] = useState(false)
   const [cardBrand, setCardBrand] = useState<string | null>(null)
+  const [cardType, setCardType] = useState<'CREDIT' | 'DEBIT' | null>(null)
+  const binTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const submittedRef = useRef(false)
+
+  const isDebit = cardType === 'DEBIT'
+
+  useEffect(() => {
+    if (isDebit && installments > 1) {
+      setInstallments(1)
+    }
+  }, [isDebit])
 
   const detectBrand = useCallback((num: string) => {
     const digits = num.replace(/\s/g, '')
@@ -68,10 +78,39 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
     return null
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (binTimeoutRef.current) clearTimeout(binTimeoutRef.current)
+    }
+  }, [])
+
+  const lookupBin = useCallback((bin: string) => {
+    if (binTimeoutRef.current) clearTimeout(binTimeoutRef.current)
+    if (bin.length < 6) {
+      setCardType(null)
+      return
+    }
+    binTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`${WOMPI_API_URL}/card_bins/${bin.slice(0, 6)}`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (data.data?.card_type) {
+          setCardType(data.data.card_type)
+        }
+      } catch {
+        // ignore BIN lookup errors
+      }
+    }, 400)
+  }, [])
+
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatCardNumber(e.target.value)
     setNumber(formatted)
     setCardBrand(detectBrand(formatted))
+    const digits = formatted.replace(/\s/g, '')
+    if (digits.length >= 6) lookupBin(digits)
+    else setCardType(null)
     setErrors(prev => ({ ...prev, number: undefined }))
   }
 
@@ -136,6 +175,8 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
       }
 
       const cardToken = tokenData.data.id
+      const tokenCardType = tokenData.data?.card_type
+      const tokenFranchise = tokenData.data?.brand
 
       const paymentRes = await fetch('/api/wompi/process-payment', {
         method: 'POST',
@@ -146,6 +187,8 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
           customerEmail: customerEmail || '',
           customerFullName,
           installments,
+          cardType: tokenCardType || cardType,
+          franchise: tokenFranchise || cardBrand?.toUpperCase(),
           ...(description && { description }),
         }),
       })
@@ -270,21 +313,33 @@ export default function WompiCardForm({ amountInCents, customerEmail, customerFu
         {errors.cardHolder && <p className="text-red-500 text-xs mt-1">{errors.cardHolder}</p>}
       </div>
 
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Cuotas</label>
-        <select
-          value={installments}
-          onChange={(e) => setInstallments(Number(e.target.value))}
-          className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-900 outline-none transition-colors focus:border-green-500 disabled:opacity-50"
-          disabled={processing}
-        >
-          {[1, 2, 3, 4, 6, 12].map((num) => (
-            <option key={num} value={num}>
-              {num} cuota{num === 1 ? '' : 's'}
-            </option>
-          ))}
-        </select>
-      </div>
+      {!isDebit && (
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">Cuotas</label>
+          <select
+            value={installments}
+            onChange={(e) => setInstallments(Number(e.target.value))}
+            className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-900 outline-none transition-colors focus:border-green-500 disabled:opacity-50"
+            disabled={processing}
+          >
+            {[1, 2, 3, 4, 6, 12].map((num) => (
+              <option key={num} value={num}>
+                {num} cuota{num === 1 ? '' : 's'}
+              </option>
+            ))}
+          </select>
+          {cardType === 'DEBIT' && (
+            <p className="text-xs text-gray-400 mt-1">Tarjeta débito — no requiere cuotas</p>
+          )}
+        </div>
+      )}
+      {isDebit && (
+        <div className="rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3">
+          <p className="text-xs text-gray-500">
+            💳 Tarjeta débito detectada — las cuotas no aplican
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 text-xs text-gray-400">
         <Lock className="w-3.5 h-3.5" />

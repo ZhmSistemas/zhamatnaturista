@@ -19,13 +19,15 @@ type ResumenData = {
   paymentMethod: string
 }
 
+type TransactionResult = { id: string; status: string; reference: string; cardType?: string; franchise?: string }
+
 export default function ResumenPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { items, total, subtotal, discount, delivery, clearCart } = useCart()
   const [saving, setSaving] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [pendingTransaction, setPendingTransaction] = useState<{ id: string; status: string; reference: string } | null>(null)
+  const [pendingTransaction, setPendingTransaction] = useState<TransactionResult | null>(null)
   const pollingRef = useRef(false)
   const [data] = useState<ResumenData | null>(() => {
     if (typeof window === 'undefined') return null
@@ -74,7 +76,7 @@ export default function ResumenPage() {
     }
   }, [data, items, subtotal, discount, total, clearCart, router])
 
-  const handleTarjetaRejected = useCallback(async (transaction: { id: string; status: string; reference: string }) => {
+  const handleTarjetaRejected = useCallback(async (transaction: TransactionResult) => {
     console.log('🔍 [ResumenPage] handleTarjetaRejected called with:', transaction)
     if (!data) return
     try {
@@ -97,6 +99,8 @@ export default function ResumenPage() {
           wompiReference: transaction.reference,
           wompiStatus: 'DECLINED',
           status: 'rejected',
+          cardType: transaction.cardType,
+          franchise: transaction.franchise,
         }),
       })
     } catch {
@@ -106,7 +110,7 @@ export default function ResumenPage() {
     router.push(`/checkout/rechazado?message=${msg}`)
   }, [data, items, subtotal, discount, total, router])
 
-  const handleTarjetaSuccess = useCallback(async (transaction: { id: string; status: string; reference: string }) => {
+  const handleTarjetaSuccess = useCallback(async (transaction: TransactionResult) => {
     console.log('🔍 [ResumenPage] handleTarjetaSuccess called with:', transaction)
     if (!data) return
 
@@ -130,6 +134,8 @@ export default function ResumenPage() {
           wompiReference: transaction.reference,
           wompiStatus: 'APPROVED',
           status: 'paid',
+          cardType: transaction.cardType,
+          franchise: transaction.franchise,
         }),
       })
 
@@ -151,7 +157,7 @@ export default function ResumenPage() {
     }
   }, [data, items, subtotal, discount, total, clearCart, router])
 
-  const handleTarjetaPending = useCallback(async (transaction: { id: string; status: string; reference: string }) => {
+  const handleTarjetaPending = useCallback(async (transaction: TransactionResult) => {
     console.log('🔍 [ResumenPage] handleTarjetaPending called with:', transaction)
     if (!data) return
 
@@ -175,6 +181,8 @@ export default function ResumenPage() {
           wompiReference: transaction.reference,
           wompiStatus: 'PENDING',
           status: 'pending',
+          cardType: transaction.cardType,
+          franchise: transaction.franchise,
         }),
       })
     } catch {
