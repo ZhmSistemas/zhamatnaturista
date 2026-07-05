@@ -8,16 +8,23 @@ import {
   ShieldCheck,  
   ShoppingCart,
   Package,
+  Heart,
+  Activity,
+  Stethoscope,
+  Brain,
+  TrendingUp,
 } from 'lucide-react'
 import { Product } from '@/lib/models/ProductModel'
 import { formatPrice } from '@/lib/formatPrice'
 import { useCart } from '@/context/CartContext'
 import { showToast } from 'nextjs-toast-notify'
+import ServicioMedicoModal from './ServicioMedicoModal'
 import Image from 'next/image'
 
 export default function NaturalProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [servicioOpen, setServicioOpen] = useState(false)
   const { addItem, openCart } = useCart()
 
   useEffect(() => {
@@ -59,6 +66,90 @@ export default function NaturalProducts() {
             />
           </video>
         
+        </div>
+      </div>
+
+      {/* Servicio Médico Section */}
+      <div className="relative py-20 px-6 sm:px-12 lg:px-20 bg-white overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5" />
+
+        <div className="max-w-6xl mx-auto relative">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border border-green-200 text-green-700 text-sm font-semibold mb-6">
+                <Heart className="w-4 h-4" />
+                Más que una tienda naturista
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-6 leading-tight">
+                Tu{' '}
+                <span className="bg-clip-text text-transparent bg-linear-to-r from-green-600 to-emerald-600">
+                  Médico Naturista
+                </span>{' '}
+                de Confianza
+              </h2>
+              <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                En Zhamat Natural no solo vendemos productos. Somos tu aliado en salud 
+                con seguimiento médico personalizado mediante toma de tensión arterial, 
+                glucometría y análisis con inteligencia artificial.
+              </p>
+
+              <div className="space-y-4 mb-8">
+                {[
+                  { icon: Activity, text: 'Monitoreo de tensión arterial' },
+                  { icon: TrendingUp, text: 'Control de glucosa (glucometría)' },
+                  { icon: Brain, text: 'Análisis predictivo con inteligencia artificial' },
+                ].map((item, i) => {
+                  const Icon = item.icon
+                  return (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-green-600" />
+                      </div>
+                      <span className="text-gray-700 font-medium">{item.text}</span>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <button
+                onClick={() => setServicioOpen(true)}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg bg-linear-to-r from-green-500 to-emerald-500 text-white hover:shadow-2xl hover:shadow-green-500/30 transition-all duration-300 transform hover:scale-105"
+              >
+                <Stethoscope className="w-5 h-5" />
+                Conoce todos los beneficios
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="relative h-[500px] flex items-center justify-center">
+              <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-green-100 via-emerald-50 to-teal-100 border border-green-200" />
+              <div className="absolute inset-4 rounded-2xl bg-linear-to-br from-green-500/10 to-emerald-500/10" />
+
+              <div className="relative z-10 text-center px-8">
+                <div className="w-24 h-24 mx-auto mb-8 rounded-3xl bg-linear-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-2xl shadow-green-500/20">
+                  <Heart className="w-12 h-12 text-white" />
+                </div>
+                <div className="text-6xl font-black text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-600 mb-4">
+                  +15 Años
+                </div>
+                <p className="text-gray-600 text-lg mb-6">cuidando tu salud de forma natural</p>
+
+                <div className="grid grid-cols-3 gap-4 max-w-sm mx-auto">
+                  {[
+                    { label: 'Pacientes', value: '+2,000' },
+                    { label: 'Mediciones', value: '+15K' },
+                    { label: 'Satisfacción', value: '98%' },
+                  ].map((stat, i) => (
+                    <div key={i} className="text-center p-3 rounded-xl bg-white/80 border border-green-100">
+                      <div className="text-lg font-black text-green-600">{stat.value}</div>
+                      <div className="text-xs text-gray-500">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -272,6 +363,8 @@ export default function NaturalProducts() {
           </div>
         </div>
       </div>
+
+      <ServicioMedicoModal open={servicioOpen} onClose={() => setServicioOpen(false)} />
     </div>
   )
 }
