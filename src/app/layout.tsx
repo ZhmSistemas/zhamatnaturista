@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
+import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Providers } from "./Providers";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
         <Providers>
           <ConditionalNavbar />
           {children}
+          <Footer />
           <WhatsAppButton />
         </Providers>
       </body>
