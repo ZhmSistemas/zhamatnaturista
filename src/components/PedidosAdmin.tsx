@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { showToast } from "nextjs-toast-notify";
 import ConfirmModal from "./ConfirmModal";
+import Image from "next/image";
 
 type ShippingItem = {
   productId: string;
@@ -56,45 +57,58 @@ type ConfirmAction =
   | null;
 
 export default function PedidosAdmin() {
-  const [pedidos, setPedidos] = useState<Shipping[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [pedidos, setPedidos] = useState<Shipping[] | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ConfirmAction>(null);
-  const [filter, setFilter] = useState<'all' | 'pending-shipment' | 'pending-payment'>('all');
+  const [filter, setFilter] = useState<
+    "all" | "pending-shipment" | "pending-payment"
+  >("all");
 
-  const filteredPedidos = pedidos.filter((p) => {
-    if (filter === 'all') return true;
-    if (filter === 'pending-shipment') {
-      return !p.enviado && (p.paymentMethod === "efectivo" || (p.paymentMethod === "tarjeta" && (p.wompiStatus === "APPROVED" || p.wompiStatus === "PENDING")));
+  const lista = pedidos ?? [];
+
+  const filteredPedidos = lista.filter((p) => {
+    if (filter === "all") return true;
+    if (filter === "pending-shipment") {
+      return (
+        !p.enviado &&
+        (p.paymentMethod === "efectivo" ||
+          (p.paymentMethod === "tarjeta" &&
+            (p.wompiStatus === "APPROVED" || p.wompiStatus === "PENDING")))
+      );
     }
-    if (filter === 'pending-payment') {
-      return p.status === "pending" && p.paymentMethod === "efectivo";
+    if (filter === "pending-payment") {
+      return p.status === "pending";
     }
     return true;
   });
 
   const counts = {
-    all: pedidos.length,
-    'pending-shipment': pedidos.filter((p) => !p.enviado && (p.paymentMethod === "efectivo" || (p.paymentMethod === "tarjeta" && (p.wompiStatus === "APPROVED" || p.wompiStatus === "PENDING")))).length,
-    'pending-payment': pedidos.filter((p) => p.status === "pending" && p.paymentMethod === "efectivo").length,
-  };
-
-  const fetchPedidos = async () => {
-    try {
-      const res = await fetch("/api/shipping/admin");
-      if (!res.ok) throw new Error("Error al cargar pedidos");
-      const data = await res.json();
-      setPedidos(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error(error);
-      showToast.error("Error al cargar los pedidos");
-    } finally {
-      setLoading(false);
-    }
+    all: lista.length,
+    "pending-shipment": lista.filter(
+      (p) =>
+        !p.enviado &&
+        (p.paymentMethod === "efectivo" ||
+          (p.paymentMethod === "tarjeta" &&
+            (p.wompiStatus === "APPROVED" || p.wompiStatus === "PENDING"))),
+    ).length,
+    "pending-payment": lista.filter(
+      (p) => p.status === "pending",
+    ).length,
   };
 
   useEffect(() => {
-    fetchPedidos();
+    (async () => {
+      try {
+        const res = await fetch("/api/shipping/admin");
+        if (!res.ok) throw new Error("Error al cargar pedidos");
+        const data = await res.json();
+        setPedidos(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error(error);
+        showToast.error("Error al cargar los pedidos");
+        setPedidos([]);
+      }
+    })();
   }, []);
 
   const ejecutarToggleEnviado = async (id: string) => {
@@ -107,12 +121,14 @@ export default function PedidosAdmin() {
       if (!res.ok) throw new Error("Error al actualizar");
       const updated = await res.json();
       setPedidos((prev) =>
-        prev.map((p) => (p._id === id ? { ...p, enviado: updated.enviado } : p))
+        (prev ?? []).map((p) =>
+          p._id === id ? { ...p, enviado: updated.enviado } : p,
+        ),
       );
       showToast.success(
         updated.enviado
           ? "Pedido marcado como enviado"
-          : "Pedido marcado como no enviado"
+          : "Pedido marcado como no enviado",
       );
     } catch (error) {
       console.error(error);
@@ -130,7 +146,7 @@ export default function PedidosAdmin() {
       if (!res.ok) throw new Error("Error al actualizar");
       const updated = await res.json();
       setPedidos((prev) =>
-        prev.map((p) => (p._id === id ? { ...p, status: updated.status } : p))
+        (prev ?? []).map((p) => (p._id === id ? { ...p, status: updated.status } : p)),
       );
       showToast.success("Pago marcado como recibido");
     } catch (error) {
@@ -161,7 +177,7 @@ export default function PedidosAdmin() {
       if (!res.ok) throw new Error("Error al actualizar");
       const updated = await res.json();
       setPedidos((prev) =>
-        prev.map((p) => (p._id === id ? { ...p, status: updated.status } : p))
+        (prev ?? []).map((p) => (p._id === id ? { ...p, status: updated.status } : p)),
       );
       showToast.success("Pago revertido a pendiente");
     } catch (error) {
@@ -194,7 +210,7 @@ export default function PedidosAdmin() {
       minute: "2-digit",
     });
 
-  if (loading) {
+  if (pedidos === null) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">Cargando pedidos...</p>
@@ -209,21 +225,23 @@ export default function PedidosAdmin() {
 
         <div className="flex gap-2 overflow-x-auto">
           {[
-            { key: 'all', label: 'Todos' },
-            { key: 'pending-shipment', label: 'Pendientes de envío' },
-            { key: 'pending-payment', label: 'Pendientes de pago' },
+            { key: "all", label: "Todos" },
+            { key: "pending-shipment", label: "Pendientes de envío" },
+            { key: "pending-payment", label: "Pendientes de pago" },
           ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key as typeof filter)}
               className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === tab.key
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? "bg-indigo-600 text-white shadow-md"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
               {tab.label}
-              <span className={`ml-1.5 text-xs ${filter === tab.key ? 'text-indigo-200' : 'text-gray-400'}`}>
+              <span
+                className={`ml-1.5 text-xs ${filter === tab.key ? "text-indigo-200" : "text-gray-400"}`}
+              >
                 ({counts[tab.key as keyof typeof counts]})
               </span>
             </button>
@@ -233,11 +251,11 @@ export default function PedidosAdmin() {
 
       {filteredPedidos.length === 0 ? (
         <p className="text-gray-500 text-center py-12">
-          {filter === 'all'
-            ? 'No hay pedidos registrados'
-            : filter === 'pending-shipment'
-              ? 'No hay pedidos pendientes de envío'
-              : 'No hay pedidos pendientes de pago'}
+          {filter === "all"
+            ? "No hay pedidos registrados"
+            : filter === "pending-shipment"
+              ? "No hay pedidos pendientes de envío"
+              : "No hay pedidos pendientes de pago"}
         </p>
       ) : (
         <div className="space-y-4">
@@ -284,7 +302,8 @@ export default function PedidosAdmin() {
                         statusColors[pedido.status ?? "pending"]
                       }`}
                     >
-                      Pago: {statusLabel[pedido.status ?? "pending"] ?? pedido.status}
+                      Pago:{" "}
+                      {statusLabel[pedido.status ?? "pending"] ?? pedido.status}
                     </span>
                     {!rechazado && (
                       <span
@@ -305,7 +324,7 @@ export default function PedidosAdmin() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div className="min-w-0">
                         <p className="text-gray-500">Dirección</p>
-                        <p className="font-medium break-words">
+                        <p className="font-medium wrap-break-words">
                           {pedido.direccion}, {pedido.barrio}, {pedido.ciudad}
                         </p>
                       </div>
@@ -326,7 +345,8 @@ export default function PedidosAdmin() {
                             statusColors[pedido.status ?? "pending"]
                           }`}
                         >
-                          {statusLabel[pedido.status ?? "pending"] ?? pedido.status}
+                          {statusLabel[pedido.status ?? "pending"] ??
+                            pedido.status}
                         </span>
                       </div>
                     </div>
@@ -335,8 +355,17 @@ export default function PedidosAdmin() {
                       <div className="text-sm">
                         <p className="text-gray-500">Tipo de tarjeta</p>
                         <p className="font-medium">
-                          {pedido.cardType === "DEBIT" ? "Débito" : pedido.cardType === "CREDIT" ? "Crédito" : pedido.cardType}
-                          {pedido.franchise && <span className="text-gray-400"> — {pedido.franchise}</span>}
+                          {pedido.cardType === "DEBIT"
+                            ? "Débito"
+                            : pedido.cardType === "CREDIT"
+                              ? "Crédito"
+                              : pedido.cardType}
+                          {pedido.franchise && (
+                            <span className="text-gray-400">
+                              {" "}
+                              — {pedido.franchise}
+                            </span>
+                          )}
                         </p>
                       </div>
                     )}
@@ -352,7 +381,9 @@ export default function PedidosAdmin() {
                             className="flex items-center gap-3 bg-gray-50 rounded-lg p-3"
                           >
                             {item.image && (
-                              <img
+                              <Image
+                                width={80}
+                                height={80}
                                 src={item.image}
                                 alt={item.name}
                                 className="w-12 h-12 rounded object-cover"
@@ -396,24 +427,28 @@ export default function PedidosAdmin() {
                     </div>
 
                     <div className="flex gap-2">
-                      {pedido.paymentMethod === "efectivo" && pedido.status !== "paid" && (
-                        <button
-                          onClick={() => confirmarPagado(pedido._id)}
-                          className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                        >
-                          Marcar como pagado
-                        </button>
-                      )}
-                      {pedido.paymentMethod === "efectivo" && pedido.status === "paid" && (
-                        <button
-                          onClick={() => confirmarDeshacerPago(pedido._id)}
-                          className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors"
-                        >
-                          Deshacer pago
-                        </button>
-                      )}
+                      {pedido.paymentMethod === "efectivo" &&
+                        pedido.status !== "paid" && (
+                          <button
+                            onClick={() => confirmarPagado(pedido._id)}
+                            className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                          >
+                            Marcar como pagado
+                          </button>
+                        )}
+                      {pedido.paymentMethod === "efectivo" &&
+                        pedido.status === "paid" && (
+                          <button
+                            onClick={() => confirmarDeshacerPago(pedido._id)}
+                            className="flex-1 py-2 px-4 rounded-lg text-sm font-medium bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors"
+                          >
+                            Deshacer pago
+                          </button>
+                        )}
                       <button
-                        onClick={() => confirmarEnviado(pedido._id, pedido.enviado)}
+                        onClick={() =>
+                          confirmarEnviado(pedido._id, pedido.enviado)
+                        }
                         disabled={rechazado}
                         className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-colors ${
                           rechazado
