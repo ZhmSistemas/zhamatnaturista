@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -49,6 +49,24 @@ export default function DashboardSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const res = await fetch("/api/shipping/admin");
+        if (!res.ok) return;
+        const data = await res.json();
+        const pedidos = Array.isArray(data) ? data : [];
+        setPendingCount(pedidos.filter((p: { enviado: boolean }) => !p.enviado).length);
+      } catch {
+        // silencio
+      }
+    };
+    fetchPending();
+    const interval = setInterval(fetchPending, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const currentOption = pathToOption[pathname] ?? null;
 
@@ -94,6 +112,11 @@ export default function DashboardSidebar() {
           >
             <span className="text-xl">{item.icon}</span>
             <span className="font-medium">{item.label}</span>
+            {item.id === "pedidos" && pendingCount > 0 && (
+              <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {pendingCount > 99 ? "99+" : pendingCount}
+              </span>
+            )}
           </button>
         ))}
       </div>
