@@ -58,7 +58,7 @@ export default function DashboardSidebar() {
         if (!res.ok) return;
         const data = await res.json();
         const pedidos = Array.isArray(data) ? data : [];
-        setPendingCount(pedidos.filter((p: { enviado: boolean; wompiStatus?: string }) => !p.enviado && p.wompiStatus === "APPROVED").length);
+        setPendingCount(pedidos.filter((p: { enviado: boolean; paymentMethod?: string; wompiStatus?: string }) => !p.enviado && (p.paymentMethod === "efectivo" || (p.paymentMethod === "tarjeta" && p.wompiStatus === "APPROVED"))).length);
       } catch {
         // silencio
       }
