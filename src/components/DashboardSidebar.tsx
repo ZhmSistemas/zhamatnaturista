@@ -58,7 +58,7 @@ export default function DashboardSidebar() {
         if (!res.ok) return;
         const data = await res.json();
         const pedidos = Array.isArray(data) ? data : [];
-        setPendingCount(pedidos.filter((p: { enviado: string; paymentMethod?: string; wompiStatus?: string }) => (p.paymentMethod === "efectivo" && p.enviado === "false") || (p.enviado === "false" && p.paymentMethod === "tarjeta" && p.wompiStatus === "APPROVED")).length);
+        setPendingCount(pedidos.filter((p: { enviado: boolean; paymentMethod?: string; wompiStatus?: string }) => (p.paymentMethod === "efectivo" && !p.enviado || (p.paymentMethod === "tarjeta" && p.wompiStatus === "APPROVED" &&!p.enviado))).length);
       } catch {
         console.log("Error al obtener pedidos pendientes");
       }
