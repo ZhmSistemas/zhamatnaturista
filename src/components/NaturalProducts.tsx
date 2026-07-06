@@ -122,7 +122,7 @@ export default function NaturalProducts() {
               </button>
             </div>
 
-            <div className="relative h-[500px] flex items-center justify-center">
+            <div className="relative h-[500px] hidden lg:flex items-center justify-center">
               <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-green-100 via-emerald-50 to-teal-100 border border-green-200" />
               <div className="absolute inset-4 rounded-2xl bg-linear-to-br from-green-500/10 to-emerald-500/10" />
 
