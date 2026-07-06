@@ -112,8 +112,8 @@ export default function DashboardSidebar() {
           >
             <span className="text-xl">{item.icon}</span>
             <span className="font-medium">{item.label}</span>
-            {item.id === "pedidos" && pendingCount > 0 && (
-              <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+            {item.id === "pedidos" && (
+              <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${pendingCount > 0 ? "bg-red-500 text-white" : "bg-gray-600 text-gray-300"}`}>
                 {pendingCount > 99 ? "99+" : pendingCount}
               </span>
             )}
