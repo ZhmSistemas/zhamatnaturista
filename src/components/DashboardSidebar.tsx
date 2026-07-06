@@ -58,7 +58,7 @@ export default function DashboardSidebar() {
         if (!res.ok) return;
         const data = await res.json();
         const pedidos = Array.isArray(data) ? data : [];
-        setPendingCount(pedidos.filter((p: { enviado: boolean }) => !p.enviado).length);
+        setPendingCount(pedidos.filter((p: { enviado: boolean; wompiStatus?: string }) => !p.enviado && p.wompiStatus === "APPROVED").length);
       } catch {
         // silencio
       }
