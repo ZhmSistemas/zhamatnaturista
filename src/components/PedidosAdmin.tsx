@@ -31,6 +31,7 @@ type Shipping = {
   enviado: boolean;
   cardType?: string;
   franchise?: string;
+  wompiStatus?: string;
   createdAt: string;
 };
 
@@ -59,6 +60,24 @@ export default function PedidosAdmin() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<ConfirmAction>(null);
+  const [filter, setFilter] = useState<'all' | 'pending-shipment' | 'pending-payment'>('all');
+
+  const filteredPedidos = pedidos.filter((p) => {
+    if (filter === 'all') return true;
+    if (filter === 'pending-shipment') {
+      return !p.enviado && (p.paymentMethod === "efectivo" || (p.paymentMethod === "tarjeta" && (p.wompiStatus === "APPROVED" || p.wompiStatus === "PENDING")));
+    }
+    if (filter === 'pending-payment') {
+      return p.status === "pending" && p.paymentMethod === "efectivo";
+    }
+    return true;
+  });
+
+  const counts = {
+    all: pedidos.length,
+    'pending-shipment': pedidos.filter((p) => !p.enviado && (p.paymentMethod === "efectivo" || (p.paymentMethod === "tarjeta" && (p.wompiStatus === "APPROVED" || p.wompiStatus === "PENDING")))).length,
+    'pending-payment': pedidos.filter((p) => p.status === "pending" && p.paymentMethod === "efectivo").length,
+  };
 
   const fetchPedidos = async () => {
     try {
@@ -185,13 +204,44 @@ export default function PedidosAdmin() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Pedidos</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Pedidos</h1>
 
-      {pedidos.length === 0 ? (
-        <p className="text-gray-500 text-center py-12">No hay pedidos registrados</p>
+        <div className="flex gap-2 overflow-x-auto">
+          {[
+            { key: 'all', label: 'Todos' },
+            { key: 'pending-shipment', label: 'Pendientes de envío' },
+            { key: 'pending-payment', label: 'Pendientes de pago' },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key as typeof filter)}
+              className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                filter === tab.key
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {tab.label}
+              <span className={`ml-1.5 text-xs ${filter === tab.key ? 'text-indigo-200' : 'text-gray-400'}`}>
+                ({counts[tab.key as keyof typeof counts]})
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filteredPedidos.length === 0 ? (
+        <p className="text-gray-500 text-center py-12">
+          {filter === 'all'
+            ? 'No hay pedidos registrados'
+            : filter === 'pending-shipment'
+              ? 'No hay pedidos pendientes de envío'
+              : 'No hay pedidos pendientes de pago'}
+        </p>
       ) : (
         <div className="space-y-4">
-          {pedidos.map((pedido) => {
+          {filteredPedidos.map((pedido) => {
             const rechazado = isRechazado(pedido.status);
 
             return (
