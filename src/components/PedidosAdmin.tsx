@@ -200,14 +200,14 @@ export default function PedidosAdmin() {
                 className="rounded-xl bg-white shadow-lg overflow-hidden"
               >
                 <div
-                  className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors gap-2"
                   onClick={() =>
                     setExpandedId(expandedId === pedido._id ? null : pedido._id)
                   }
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
                     <span
-                      className={`w-3 h-3 rounded-full ${
+                      className={`w-3 h-3 rounded-full shrink-0 ${
                         rechazado
                           ? "bg-red-500"
                           : pedido.enviado
@@ -215,8 +215,8 @@ export default function PedidosAdmin() {
                             : "bg-yellow-400"
                       }`}
                     />
-                    <div>
-                      <p className="font-semibold text-gray-900">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-gray-900 truncate">
                         {pedido.nombreCompleto}
                       </p>
                       <p className="text-sm text-gray-500">
@@ -225,12 +225,12 @@ export default function PedidosAdmin() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-medium text-gray-700">
                       {formatPrice(pedido.total)}
                     </span>
                     <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`px-2 py-1 text-xs font-semibold rounded-full shrink-0 ${
                         statusColors[pedido.status ?? "pending"]
                       }`}
                     >
@@ -238,7 +238,7 @@ export default function PedidosAdmin() {
                     </span>
                     {!rechazado && (
                       <span
-                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        className={`px-2 py-1 text-xs font-semibold rounded-full shrink-0 ${
                           pedido.enviado
                             ? "bg-green-100 text-green-700"
                             : "bg-yellow-100 text-yellow-700"
@@ -252,10 +252,10 @@ export default function PedidosAdmin() {
 
                 {expandedId === pedido._id && (
                   <div className="border-t border-gray-200 p-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                      <div className="min-w-0">
                         <p className="text-gray-500">Dirección</p>
-                        <p className="font-medium">
+                        <p className="font-medium break-words">
                           {pedido.direccion}, {pedido.barrio}, {pedido.ciudad}
                         </p>
                       </div>
