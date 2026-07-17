@@ -4,6 +4,7 @@ import "./globals.css";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import FacebookPixel from "@/components/FacebookPixel";
 import { Providers } from "./Providers";
 
 const geistSans = Geist({
@@ -38,6 +39,7 @@ export default function RootLayout({
           {children}
           <Footer />
           <WhatsAppButton />
+          <FacebookPixel />
         </Providers>
       </body>
     </html>
